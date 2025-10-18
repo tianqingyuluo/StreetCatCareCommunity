@@ -32,3 +32,5 @@ build/
 ### VS Code ###
 .vscode/
 test/
+需求分析/
+backend/StreetCatCareCommunity/src/main/resources/application-local.properties
