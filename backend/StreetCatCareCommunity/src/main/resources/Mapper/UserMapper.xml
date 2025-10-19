@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.streetCat.dao.UserMapper">
+
+    <resultMap id="userMap" type="com.streetCat.pojo.User">
+        <id     column="id"            property="id"/>
+        <result column="phone"         property="phone"/>
+        <result column="email"         property="email"/>
+        <result column="location_wkt"  property="locationWkt"/>
+        <result column="home_address"  property="address"/>
+        <result column="nickname"      property="nickname"/>
+        <result column="avatar_url"    property="avatarUrl"/>
+    </resultMap>
+
+    <select id="selectByOpenid" resultMap="userMap">
+        SELECT id,
+               openid,
+               phone,
+               email,
+               ST_AsText(home_location) AS location_wkt,
+               home_address,
+               nickname,
+               avatar_url
+        FROM   users
+        WHERE  openid = #{openid}
+    </select>
+
+    <insert id="insertUser">
+        INSERT INTO users (id, openid, union_id, nickname, created_at)
+        VALUES (#{uid}, #{openid}, #{unionid}, #{nickname}, NOW())
+    </insert>
+</mapper>
