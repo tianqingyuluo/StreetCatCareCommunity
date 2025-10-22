@@ -1,5 +1,8 @@
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
 
+import tailwindcss from 'tailwindcss'
+import { UnifiedViteWeappTailwindcssPlugin as uvtw } from 'weapp-tailwindcss'
+
 import devConfig from './dev'
 import prodConfig from './prod'
 
@@ -7,7 +10,7 @@ import prodConfig from './prod'
 export default defineConfig<'vite'>(async (merge, { command, mode }) => {
   const baseConfig: UserConfigExport<'vite'> = {
     projectName: 'StreetCatCareCommunity',
-    date: '2025-10-11',
+    date: '2025-10-22',
     designWidth: 750,
     deviceRatio: {
       640: 2.34 / 2,
@@ -29,7 +32,29 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       }
     },
     framework: 'react',
-    compiler: 'vite',
+    compiler: {
+      type:'vite',
+      vitePlugins: [
+        {
+          // 通过 vite 插件加载 postcss,
+          name: 'postcss-config-loader-plugin',
+          config(config) {
+            // 加载 tailwindcss
+            if (typeof config.css?.postcss === 'object') {
+              config.css?.postcss.plugins?.unshift(tailwindcss())
+            }
+          },
+        },
+        uvtw({
+          // rem转rpx
+          rem2rpx: true,
+          // 除了小程序这些，其他平台都 disable
+          disabled: process.env.TARO_ENV === 'h5' || process.env.TARO_ENV === 'harmony' || process.env.TARO_ENV === 'rn',
+          // 由于 taro vite 默认会移除所有的 tailwindcss css 变量，所以一定要开启这个配置，进行css 变量的重新注入
+          injectAdditionalCssVarScope: true,
+        })
+      ] as Plugin[],
+    },
     mini: {
       postcss: {
         pxtransform: {
