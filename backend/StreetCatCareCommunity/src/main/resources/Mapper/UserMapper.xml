@@ -13,6 +13,8 @@
         <result column="home_address"  property="address"/>
         <result column="nickname"      property="nickname"/>
         <result column="avatar_url"    property="avatarUrl"/>
+        <result column="lon"           property="lon"/>
+        <result column="lat"           property="lat"/>
     </resultMap>
 
     <select id="selectByOpenid" resultMap="userMap">
@@ -27,9 +29,54 @@
         FROM   users
         WHERE  openid = #{openid}
     </select>
-
+    <select id="selectById" resultMap="userMap">
+        SELECT id,
+        openid,
+        phone,
+        email,
+        ST_AsText(home_location) AS location_wkt,
+        home_address,
+        nickname,
+        avatar_url,
+        ST_X(home_location) AS lon,
+        ST_Y(home_location) AS lat
+        FROM   users
+        WHERE  id = #{userid}
+    </select>
     <insert id="insertUser">
         INSERT INTO users (id, openid, union_id, nickname, created_at)
         VALUES (#{uid}, #{openid}, #{unionid}, #{nickname}, NOW())
     </insert>
+    <update id="putUserById">
+        UPDATE users
+        <set>
+            <if test="putUserRequest.nickname != null and putUserRequest.nickname != ''">
+                nickname = #{putUserRequest.nickname},
+            </if>
+            <if test="putUserRequest.avatarUrl != null and putUserRequest.avatarUrl != ''">
+                avatar_url = #{putUserRequest.avatarUrl},
+            </if>
+            <if test="putUserRequest.phone != null and putUserRequest.phone != ''">
+                phone = #{putUserRequest.phone},
+            </if>
+            <if test="putUserRequest.email != null and putUserRequest.email != ''">
+                email = #{putUserRequest.email},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{userId}
+    </update>
+    <update id="putUserLocationById">
+        UPDATE users
+        <set>
+            <if test="putUserLocationRequest.lon != null and putUserLocationRequest.lat != null">
+                home_location = ST_GeomFromText(CONCAT('POINT(', #{putUserLocationRequest.lon}, ' ', #{putUserLocationRequest.lat}, ')'), 4326),
+            </if>
+            <if test="putUserLocationRequest.address != null and putUserLocationRequest.address != ''">
+                home_address = #{putUserLocationRequest.address},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{userId}
+    </update>
 </mapper>
