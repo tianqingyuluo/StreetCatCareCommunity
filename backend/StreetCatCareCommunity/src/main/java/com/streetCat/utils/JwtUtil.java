@@ -32,6 +32,7 @@ public class JwtUtil {
      * 3. 解析并拿到 userId
      */
     public static String parse(String token) {
+        System.out.println("解析的Token: '" + token + "'");
         return Jwts.parser()
                 .setSigningKey(SIGNING_KEY) // 直接使用 Key 对象，避免弃用警告
                 .build()
