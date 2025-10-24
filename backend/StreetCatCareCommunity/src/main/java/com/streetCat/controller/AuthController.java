@@ -1,5 +1,6 @@
 package com.streetCat.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.streetCat.service.AuthService;
 import com.streetCat.utils.JwtUtil;
 import com.streetCat.utils.WxApiUtil;
@@ -42,7 +43,8 @@ public class AuthController {
 
     @PostMapping("/auth/login-wechat")
     @Operation(summary = "微信openid一键登录/注册")
-    public ResponseEntity<Object> loginWechat(@RequestBody String code) {
+    public ResponseEntity<Object> loginWechat(@RequestBody String json) {
+        String code = JSONUtil.parseObj(json).getStr("code");
         try {
             UserLoginResponse resp = authService.loginWechat(code);
             return ResponseEntity.ok(resp);
