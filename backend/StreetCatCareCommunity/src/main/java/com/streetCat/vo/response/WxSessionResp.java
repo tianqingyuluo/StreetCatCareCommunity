@@ -7,6 +7,6 @@ public class WxSessionResp {
     private String openid;
     private String session_key;
     private String unionid;
-    private Integer errCode;
-    private String errMsg;
+    private Integer errcode;
+    private String errmsg;
 }
