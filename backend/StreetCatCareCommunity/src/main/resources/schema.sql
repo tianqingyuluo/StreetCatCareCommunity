@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS community_posts (
     content TEXT NOT NULL COMMENT '内容',
     author_id BIGINT NOT NULL COMMENT '作者ID',
     post_type ENUM('DISCUSSION','EXPERIENCE','HELP') DEFAULT 'DISCUSSION',
-    images JSON COMMENT '图片列表',
+    images TEXT COMMENT '图片列表JSON字符串',
     like_count INT DEFAULT 0 COMMENT '点赞数',
     comment_count INT DEFAULT 0 COMMENT '评论数',
     view_count INT DEFAULT 0 COMMENT '浏览数',

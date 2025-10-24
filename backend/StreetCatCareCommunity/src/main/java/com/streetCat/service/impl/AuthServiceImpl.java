@@ -23,14 +23,15 @@ public class AuthServiceImpl implements AuthService {
     public UserLoginResponse loginWechat(String code) {
         // 1. 拿微信 session
         WxSessionResp wx = WxApiUtil.code2session(code);
-//        if (wx == null || wx.getOpenid() == null) {
-//            throw new RuntimeException("微信登录失败：无法获取用户信息");
-//        }
+        System.out.println(wx);
         String openid = wx.getOpenid();
         String unionid = wx.getUnionid();
         // 2. 根据 openid 查库
         User user = userMapper.selectByOpenid(openid);
-        user = userMapper.selectById("1979906218117959680");
+      user = userMapper.selectById("1979906218117959680");
+//        if (wx == null || wx.getOpenid() == null) {
+//            throw new RuntimeException("微信登录失败：无法获取用户信息");
+//        }
         String type;
         if (user == null) {
             // 3. 注册

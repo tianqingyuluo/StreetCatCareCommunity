@@ -1,5 +1,7 @@
 package com.streetCat.config;
 
+import com.streetCat.interceptor.LoginInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+    @Autowired
+    private LoginInterceptor loginInterceptor;
 
     /* ------ 跨域 ------ */
     @Override
@@ -27,9 +31,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
     /* ------ 拦截器（示例） ------ */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // registry.addInterceptor(new LoginInterceptor())
-        //         .addPathPatterns("/**")
-        //         .excludePathPatterns("/user/login", "/user/register");
+        registry.addInterceptor(loginInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/api/v1/auth/login-web",
+                        "/api/v1/admin/create-account",
+                        "/api/v1/auth/login-wechat",
+                        "/css/**", "/js/**", "/error"
+                );
     }
 
     /* ------ 统一 JSON 日期格式 ------ */

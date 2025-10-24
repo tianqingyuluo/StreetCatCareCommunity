@@ -1,6 +1,7 @@
 package com.streetCat.utils;
 
-import cn.hutool.http.HttpRequest;
+import cn.hutool.core.net.url.UrlBuilder;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.streetCat.vo.response.WxSessionResp;
 import lombok.Data;
@@ -23,12 +24,16 @@ public class WxApiUtil {
         paramMap.put("js_code", code);
         paramMap.put("grant_type", "authorization_code");
 
-        // 使用 Hutool 发送请求
-        String response = HttpRequest.get("https://api.weixin.qq.com/sns/jscode2session")
-                .form(paramMap)
-                .execute()
-                .body();
+        String url = UrlBuilder.of("https://api.weixin.qq.com/sns/jscode2session")
+                .addQuery("appid", APPID)
+                .addQuery("secret", SECRET)
+                .addQuery("js_code", code)
+                .addQuery("grant_type", "authorization_code")
+                .build();
 
+        System.out.println("实际访问路径: " + url);
+        String response = HttpUtil.get(url);
+        System.out.println("微信API原始响应: " + response);
         // 手动转换为对象
         return JSONUtil.toBean(response, WxSessionResp.class);
     }
