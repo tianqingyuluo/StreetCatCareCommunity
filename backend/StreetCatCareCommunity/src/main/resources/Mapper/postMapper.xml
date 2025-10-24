@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.streetCat.dao.PostMapper">
+
+    <!-- 插入帖子 -->
+    <insert id="insertPost">
+        INSERT INTO community_posts (
+        id,
+        title,
+        content,
+        author_id,
+        post_type,
+        images,
+        is_top,
+        is_elite,
+        status,
+        created_at
+        ) VALUES (
+        #{id},
+        #{request.title},
+        #{request.content},
+        #{userId},
+        #{request.postType},
+        #{request.imagesJson},
+        #{request.isTop},
+        #{request.isElite},
+        'PUBLISHED',
+        NOW()
+        )
+    </insert>
+
+    <!-- 根据ID查询帖子 -->
+    <select id="getPostById" resultType="com.streetCat.pojo.Post">
+        SELECT
+            id,
+            title,
+            content,
+            author_id AS authorId,
+            post_type AS postType,
+            images,
+            like_count AS likeCount,
+            comment_count AS commentCount,
+            view_count AS viewCount,
+            is_top AS isTop,
+            is_elite AS isElite,
+            status,
+            created_at AS createdAt
+        FROM community_posts
+        WHERE id = #{id}
+    </select>
+
+</mapper>
