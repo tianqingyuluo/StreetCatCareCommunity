@@ -21,12 +21,6 @@ public class CreateNewPostRequest {
     @Schema(description = "图片地址列表")
     private List<String> images;
 
-    @Schema(description = "是否置顶", example = "false")
-    private Boolean isTop;
-
-    @Schema(description = "是否加精", example = "false")
-    private Boolean isElite;
-
     public String getImagesJson() {
         if (images == null || images.isEmpty()) {
             return null;

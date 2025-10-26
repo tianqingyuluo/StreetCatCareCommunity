@@ -29,10 +29,10 @@ public class Post {
     private Boolean isElite;
 
     @Schema(description = "帖子ID", example = "0")
-    private Long id;
+    private String id;
 
     @Schema(description = "作者ID", example = "0")
-    private Long authorId;
+    private String authorId;
 
     @Schema(description = "点赞数", example = "0")
     private Integer likeCount;
