@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.streetCat.dao.PostMapper">
+
+    <!-- 插入帖子 -->
+    <insert id="insertPost">
+        INSERT INTO community_posts (
+        id,
+        title,
+        content,
+        author_id,
+        post_type,
+        images,
+        status,
+        created_at
+        ) VALUES (
+        #{id},
+        #{request.title},
+        #{request.content},
+        #{userId},
+        #{request.postType},
+        #{request.imagesJson},
+        'PENDING',
+        NOW()
+        )
+    </insert>
+
+    <!-- 根据ID查询帖子 -->
+    <select id="getPostById" resultType="com.streetCat.pojo.Post">
+        SELECT
+            id,
+            title,
+            content,
+            author_id AS authorId,
+            post_type AS postType,
+            images,
+            like_count AS likeCount,
+            comment_count AS commentCount,
+            view_count AS viewCount,
+            is_top AS isTop,
+            is_elite AS isElite,
+            status,
+            created_at AS createdAt
+        FROM community_posts
+        WHERE id = #{id}
+    </select>
+    <select id="findPendingPosts" resultType="com.streetCat.pojo.Post">
+        SELECT
+            id,
+            title,
+            content,
+            author_id AS authorId,
+            post_type AS postType,
+            images,
+            like_count AS likeCount,
+            comment_count AS commentCount,
+            view_count AS viewCount,
+            is_top AS isTop,
+            is_elite AS isElite,
+            status,
+            created_at AS createdAt
+        FROM community_posts
+        WHERE status = 'PENDING'
+        ORDER BY created_at DESC
+    </select>
+    <!-- 分页查询帖子 -->
+    <select id="listPosts" resultType="com.streetCat.pojo.Post">
+        SELECT
+        id,
+        title,
+        content,
+        author_id AS authorId,
+        post_type AS postType,
+        images,
+        like_count AS likeCount,
+        comment_count AS commentCount,
+        view_count AS viewCount,
+        is_top AS isTop,
+        is_elite AS isElite,
+        status,
+        created_at AS createdAt
+        FROM community_posts
+        WHERE status = 'PUBLISHED'
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%') OR content LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="postType != null and postType != ''">
+            AND post_type = #{postType}
+        </if>
+        ORDER BY
+        <choose>
+            <when test="sort == 'CREATED_AT_DESC'">
+                created_at DESC
+            </when>
+            <when test="sort == 'CREATED_AT_ASC'">
+                created_at ASC
+            </when>
+            <when test="sort == 'LIKE_COUNT_DESC'">
+                like_count DESC
+            </when>
+            <when test="sort == 'VIEW_COUNT_DESC'">
+                view_count DESC
+            </when>
+            <otherwise>
+                created_at DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="countPosts" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM community_posts
+        WHERE status = 'PUBLISHED'
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%') OR content LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="postType != null and postType != ''">
+            AND post_type = #{postType}
+        </if>
+    </select>
+</mapper>
