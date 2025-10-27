@@ -34,6 +34,9 @@ public class Post {
     @Schema(description = "作者ID", example = "0")
     private String authorId;
 
+    @Schema(description = "拒绝理由或备注")
+    private String mark;
+
     @Schema(description = "点赞数", example = "0")
     private Integer likeCount;
 

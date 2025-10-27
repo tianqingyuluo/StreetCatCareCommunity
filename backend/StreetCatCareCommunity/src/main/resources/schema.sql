@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS community_posts (
     is_top BOOLEAN DEFAULT FALSE COMMENT '是否置顶',
     is_elite BOOLEAN DEFAULT FALSE COMMENT '是否精华',
     status ENUM('PUBLISHED', 'PENDING', 'REJECTED') DEFAULT 'PENDING',
+    mark VARCHAR(500) COMMENT '审核备注/未通过理由',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_author_type (author_id, post_type),

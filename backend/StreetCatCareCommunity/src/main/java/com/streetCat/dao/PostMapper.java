@@ -2,7 +2,9 @@ package com.streetCat.dao;
 
 import cn.hutool.db.PageResult;
 import com.streetCat.pojo.Post;
+import com.streetCat.pojo.PostWithUser;
 import com.streetCat.vo.request.CreateNewPostRequest;
+import com.streetCat.vo.request.UpdatePostStatusRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,14 +15,14 @@ import java.util.List;
 public interface PostMapper {
 
     int insertPost(@Param("id")        Long id,
-                   @Param("userId")    Long userId,
+                   @Param("userId")    String userId,
                    @Param("request")   CreateNewPostRequest request);
 
     Post getPostById(@Param("id")      Long id);
 
     ArrayList<Post> findPendingPosts();
 
-    PageResult<Post> listPosts(
+    PageResult<PostWithUser> listPosts(
             @Param("keyword") String keyword,
             @Param("postType") String postType,
             @Param("sort") String sort,
@@ -28,6 +30,20 @@ public interface PostMapper {
             @Param("size") Integer size,
             @Param("offset") Integer offset
     );
-
     Long countPosts(@Param("keyword")String keyword, @Param("postType")String postType);
+
+
+    void updatePostStatus(@Param("id") String id,
+                          @Param("status") UpdatePostStatusRequest.PostStatus status,
+                          @Param("remark") String remark);
+
+    boolean isSysAdmin(@Param("id") String userid);
+    List<Post> listPostsByUserId(@Param("userid") String userId);
+
+    boolean isPostAuthor(@Param("id") String id, @Param("userId") String userId);
+
+    void updatePost(@Param("id") String id,@Param("userid") String userId,@Param("request") CreateNewPostRequest postSaveReq);
+    void deletePost(@Param("id") String id);
+    void updatePostTopStatus(@Param("id") String id, @Param("isTop") Boolean isTop);
+    void updatePostEliteStatus(@Param("id") String id, @Param("isElite") Boolean isElite);
 }

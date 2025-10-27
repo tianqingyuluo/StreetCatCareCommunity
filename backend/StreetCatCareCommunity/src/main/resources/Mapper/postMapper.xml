@@ -36,6 +36,7 @@
             author_id AS authorId,
             post_type AS postType,
             images,
+            mark,
             like_count AS likeCount,
             comment_count AS commentCount,
             view_count AS viewCount,
@@ -54,6 +55,7 @@
             author_id AS authorId,
             post_type AS postType,
             images,
+            mark,
             like_count AS likeCount,
             comment_count AS commentCount,
             view_count AS viewCount,
@@ -65,46 +67,50 @@
         WHERE status = 'PENDING'
         ORDER BY created_at DESC
     </select>
-    <!-- 分页查询帖子 -->
-    <select id="listPosts" resultType="com.streetCat.pojo.Post">
+    <!-- 分页查询帖子（包含用户信息） -->
+    <select id="listPostsWithUser" resultType="com.streetCat.pojo.PostWithUser">
         SELECT
-        id,
-        title,
-        content,
-        author_id AS authorId,
-        post_type AS postType,
-        images,
-        like_count AS likeCount,
-        comment_count AS commentCount,
-        view_count AS viewCount,
-        is_top AS isTop,
-        is_elite AS isElite,
-        status,
-        created_at AS createdAt
-        FROM community_posts
-        WHERE status = 'PUBLISHED'
+        p.id,
+        p.title,
+        p.content,
+        p.author_id AS authorId,
+        p.post_type AS postType,
+        p.images,
+        p.like_count AS likeCount,
+        p.comment_count AS commentCount,
+        p.view_count AS viewCount,
+        p.is_top AS isTop,
+        p.is_elite AS isElite,
+        p.status,
+        p.created_at AS createdAt,
+        u.id AS "authorInfo.id",
+        u.nickname AS "authorInfo.nickname",
+        u.avatar AS "authorInfo.avatar"
+        FROM community_posts p
+        LEFT JOIN users u ON p.author_id = u.id
+        WHERE p.status = 'PUBLISHED'
         <if test="keyword != null and keyword != ''">
-            AND (title LIKE CONCAT('%', #{keyword}, '%') OR content LIKE CONCAT('%', #{keyword}, '%'))
+            AND (p.title LIKE CONCAT('%', #{keyword}, '%') OR p.content LIKE CONCAT('%', #{keyword}, '%'))
         </if>
         <if test="postType != null and postType != ''">
-            AND post_type = #{postType}
+            AND p.post_type = #{postType}
         </if>
         ORDER BY
         <choose>
             <when test="sort == 'CREATED_AT_DESC'">
-                created_at DESC
+                p.created_at DESC
             </when>
             <when test="sort == 'CREATED_AT_ASC'">
-                created_at ASC
+                p.created_at ASC
             </when>
             <when test="sort == 'LIKE_COUNT_DESC'">
-                like_count DESC
+                p.like_count DESC
             </when>
             <when test="sort == 'VIEW_COUNT_DESC'">
-                view_count DESC
+                p.view_count DESC
             </when>
             <otherwise>
-                created_at DESC
+                p.created_at DESC
             </otherwise>
         </choose>
         LIMIT #{size} OFFSET #{offset}
@@ -122,4 +128,75 @@
             AND post_type = #{postType}
         </if>
     </select>
+
+    <update id="updatePostStatus">
+        UPDATE community_posts
+        SET status = #{status},
+            mark = #{remark},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+    <select id="isSysAdmin" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM sys_admin
+        WHERE id = #{id}
+          AND role = 'SYSTEM_ADMIN'
+    </select>
+    <select id="listPostsByUserId" resultType="com.streetCat.pojo.Post">
+        SELECT
+            id,
+            title,
+            content,
+            author_id AS authorId,
+            post_type AS postType,
+            images,
+            like_count AS likeCount,
+            comment_count AS commentCount,
+            view_count AS viewCount,
+            is_top AS isTop,
+            is_elite AS isElite,
+            status,
+            mark,
+            created_at AS createdAt
+        FROM community_posts
+        WHERE author_id = #{userid}
+        ORDER BY created_at DESC
+    </select>
+    <select id="isPostAuthor" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM community_posts
+        WHERE id = #{id}
+          AND author_id = #{userId}
+    </select>
+    <update id="updatePost">
+        UPDATE community_posts
+        SET title = #{request.title},
+            content = #{request.content},
+            post_type = #{request.postType},
+            images = #{request.imagesJson},
+            status = 'PENDING',
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND author_id = #{userid}
+    </update>
+    <delete id="deletePost">
+        DELETE FROM community_posts
+        WHERE id = #{id}
+    </delete>
+    <!-- 置顶帖子 -->
+    <update id="updatePostTopStatus">
+        UPDATE community_posts
+        SET is_top = #{isTop},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 加精帖子 -->
+    <update id="updatePostEliteStatus">
+        UPDATE community_posts
+        SET is_elite = #{isElite},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+</mapper>
 </mapper>
