@@ -106,16 +106,18 @@ public class RedisCountUtil {
         String actionKey = generateUserActionKey("collect", targetType, targetId, userId);
         String countKey = generateKey(COLLECT_COUNT_KEY, targetType, targetId);
 
-        // 检查是否有收藏记录
-        if (Boolean.FALSE.equals(redisTemplate.hasKey(actionKey))) {
-            return false;
+        // 直接删除用户行为记录（不管是否存在）
+        Boolean deleted = redisTemplate.delete(actionKey);
+
+        // 减少计数（不管用户行为记录是否存在，因为数据库已经删除了）
+        Long newCount = redisTemplate.opsForValue().decrement(countKey);
+
+        // 如果计数为0或负数，删除计数键
+        if (newCount != null && newCount <= 0) {
+            redisTemplate.delete(countKey);
         }
 
-        // 删除用户行为记录
-        redisTemplate.delete(actionKey);
-        // 减少计数
-        redisTemplate.opsForValue().decrement(countKey);
-        return true;
+        return deleted;
     }
 
     /**

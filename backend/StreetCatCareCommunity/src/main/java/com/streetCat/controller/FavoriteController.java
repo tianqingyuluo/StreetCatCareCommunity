@@ -4,10 +4,9 @@ import com.streetCat.service.FavoriteService;
 import com.streetCat.utils.BusinessException;
 import com.streetCat.utils.JwtUtil;
 import com.streetCat.vo.request.FavoriteRequest;
-import com.streetCat.vo.response.GetUserResponse;
+import com.streetCat.vo.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +21,7 @@ public class FavoriteController {
         this.favoriteService = favoriteService;
     }
 
-    @PatchMapping("/users/favorite")
+    @PatchMapping("/favorites")
     @Operation(summary = "添加收藏")
     public ResponseEntity<Object> addFavorite(@RequestHeader("Authorization") String token,
                                               @RequestBody FavoriteRequest favoriteRequest) {
@@ -35,15 +34,10 @@ public class FavoriteController {
             result.put("success", false);
             result.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(result);
-        } catch (Exception e) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", false);
-            result.put("message", "系统错误，请稍后重试");
-            return ResponseEntity.status(500).body(result);
         }
     }
 
-    @DeleteMapping("/users/favorite")
+    @DeleteMapping("/favorites")
     @Operation(summary = "取消收藏")
     public ResponseEntity<Object> removeFavorite(@RequestHeader("Authorization") String token,
                                                  @RequestBody FavoriteRequest favoriteRequest) {
@@ -64,7 +58,7 @@ public class FavoriteController {
         }
     }
 
-    @GetMapping("/users/favorite/cats")
+    @GetMapping("/favorites/cats")
     @Operation(summary = "获取用户收藏的猫咪列表(仅id)")
     public ResponseEntity<Object> getFavoriteCats(@RequestHeader("Authorization") String token) {
         try {
@@ -83,7 +77,7 @@ public class FavoriteController {
         }
     }
 
-    @GetMapping("/users/favorite/posts")
+    @GetMapping("/favorites/posts")
     @Operation(summary = "获取用户收藏的帖子列表(仅id)")
     public ResponseEntity<Object> getFavoritePosts(@RequestHeader("Authorization") String token) {
         try {
@@ -102,12 +96,12 @@ public class FavoriteController {
         }
     }
 
-    @GetMapping("/users/favorite/all")
+    @GetMapping("/favorites/all")
     @Operation(summary = "获取用户所有收藏")
     public ResponseEntity<Object> getAllFavorites(@RequestHeader("Authorization") String token) {
         try {
             String userId = JwtUtil.parse(token.replace("Bearer ", ""));
-            return ResponseEntity.ok(favoriteService.getAllFavorites(userId));
+            return ResponseEntity.ok(PageResponse.of(favoriteService.getAllFavorites(userId)));
         } catch (BusinessException e) {
             Map<String, Object> result = new HashMap<>();
             result.put("success", false);

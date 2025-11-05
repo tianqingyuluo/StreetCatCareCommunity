@@ -21,7 +21,7 @@
         #{request.content},
         #{userId},
         #{request.postType},
-        #{request.imagesJson},
+        #{request.images},
         'PENDING',
         NOW()
         )
@@ -68,7 +68,7 @@
         ORDER BY created_at DESC
     </select>
     <!-- 分页查询帖子（包含用户信息） -->
-    <select id="listPostsWithUser" resultType="com.streetCat.pojo.PostWithUser">
+    <select id="listPosts" resultType="com.streetCat.pojo.PostWithUser">
         SELECT
         p.id,
         p.title,
@@ -85,7 +85,7 @@
         p.created_at AS createdAt,
         u.id AS "authorInfo.id",
         u.nickname AS "authorInfo.nickname",
-        u.avatar AS "authorInfo.avatar"
+        u.avatar_url AS "authorInfo.avatar"
         FROM community_posts p
         LEFT JOIN users u ON p.author_id = u.id
         WHERE p.status = 'PUBLISHED'
@@ -173,7 +173,7 @@
         SET title = #{request.title},
             content = #{request.content},
             post_type = #{request.postType},
-            images = #{request.imagesJson},
+            images = #{request.images},
             status = 'PENDING',
             updated_at = NOW()
         WHERE id = #{id}

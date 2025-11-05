@@ -53,9 +53,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void updatePostStatus(String id,String userid, UpdatePostStatusRequest.PostStatus status, String remark) {
-        if (!postmapper.isSysAdmin(userid)) {
-            throw new RuntimeException("无权限操作");
-        }
+//        if (!postmapper.isSysAdmin(userid)) {
+//            throw new RuntimeException("无权限操作");
+//        }
         postmapper.updatePostStatus(id,status,remark);
     }
 

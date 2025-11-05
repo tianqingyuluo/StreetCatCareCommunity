@@ -144,6 +144,7 @@ CREATE TABLE IF NOT EXISTS comments (
                                         author_id BIGINT NOT NULL,
                                         target_type ENUM('CAT', 'POST') NOT NULL,
     target_id BIGINT NOT NULL,
+    images TEXT COMMENT '图片列表JSON字符串',
     parent_id BIGINT COMMENT '父评论ID',
     like_count INT DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
