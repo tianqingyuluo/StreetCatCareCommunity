@@ -64,6 +64,9 @@ public class AuthController {
         if (token == null || !token.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未携带token或token格式错误");
         }
+        if (!isValidLocation(putUserLocationRequest.getLon(), putUserLocationRequest.getLat())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("位置信息错误");
+        }
         String userId = JwtUtil.parse(token.replace("Bearer ", ""));
         authService.updateLocationById(userId,putUserLocationRequest);
         return ResponseEntity.status(HttpStatus.OK).body("更新位置信息成功");
@@ -75,4 +78,16 @@ public class AuthController {
         GetUserResponse response = authService.getUserById(userid);
         return ResponseEntity.ok(response);
     }
+    private boolean isValidLocation(Double longitude, Double latitude) {
+        if (longitude == null || latitude == null) {
+            return false;
+        }
+
+        // 经度范围：-180 到 180，纬度范围：-90 到 90
+        boolean isLongitudeValid = longitude >= -180 && longitude <= 180;
+        boolean isLatitudeValid = latitude >= -90 && latitude <= 90;
+
+        return isLongitudeValid && isLatitudeValid;
+    }
+
 }

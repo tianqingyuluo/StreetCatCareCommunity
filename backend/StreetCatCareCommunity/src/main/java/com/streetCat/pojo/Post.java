@@ -1,5 +1,6 @@
 package com.streetCat.pojo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -20,7 +21,7 @@ public class Post {
     private String postType;
 
     @Schema(description = "图片地址列表")
-    private List<String> images;
+    private String images;
 
     @Schema(description = "是否置顶", example = "true")
     private Boolean isTop;

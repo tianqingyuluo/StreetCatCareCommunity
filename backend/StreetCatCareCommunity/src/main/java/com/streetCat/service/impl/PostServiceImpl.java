@@ -9,11 +9,13 @@ import com.streetCat.utils.RandomUtil;
 import com.streetCat.vo.request.CreateNewPostRequest;
 import com.streetCat.vo.request.UpdatePostStatusRequest;
 import com.streetCat.vo.response.PageResponse;
+import com.streetCat.vo.response.PostWithUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,17 +40,20 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PageResponse<PostWithUser> listPosts(String keyword, String postType, String sort, Integer page, Integer size) {
+    public PageResponse<PostWithUserResponse> listPosts(String keyword, String postType, String sort, Integer page, Integer size) {
         // 计算偏移量
         int offset = (page - 1) * size;
 
         // 查询数据
         PageResult<PostWithUser> records = postmapper.listPosts(keyword, postType, sort, page, size, offset);
+        List<PostWithUserResponse> responseList = records.stream()
+                .map(PostWithUserResponse::new)
+                .collect(Collectors.toList());
 
         // 查询总数
         Long total = postmapper.countPosts(keyword, postType);
 
-        return new PageResponse<>(total, records);
+        return new PageResponse<>(total, responseList);
     }
 
     @Override

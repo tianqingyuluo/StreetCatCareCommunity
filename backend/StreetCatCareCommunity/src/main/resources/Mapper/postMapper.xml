@@ -4,69 +4,112 @@
 
 <mapper namespace="com.streetCat.dao.PostMapper">
 
+    <!-- 定义Post结果映射 -->
+    <resultMap id="PostResultMap" type="com.streetCat.pojo.Post">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="author_id" property="authorId"/>
+        <result column="post_type" property="postType"/>
+        <result column="images" property="images"/>
+        <result column="mark" property="mark"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="comment_count" property="commentCount"/>
+        <result column="view_count" property="viewCount"/>
+        <result column="is_top" property="isTop"/>
+        <result column="is_elite" property="isElite"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
     <!-- 插入帖子 -->
     <insert id="insertPost">
         INSERT INTO community_posts (
-        id,
-        title,
-        content,
-        author_id,
-        post_type,
-        images,
-        status,
-        created_at
+            id,
+            title,
+            content,
+            author_id,
+            post_type,
+            images,
+            status,
+            created_at
         ) VALUES (
-        #{id},
-        #{request.title},
-        #{request.content},
-        #{userId},
-        #{request.postType},
-        #{request.images},
-        'PENDING',
-        NOW()
-        )
+                     #{id},
+                     #{request.title},
+                     #{request.content},
+                     #{userId},
+                     #{request.postType},
+                     #{request.images},
+                     'PENDING',
+                     NOW()
+                 )
     </insert>
 
     <!-- 根据ID查询帖子 -->
-    <select id="getPostById" resultType="com.streetCat.pojo.Post">
+    <select id="getPostById" resultMap="PostResultMap">
         SELECT
             id,
             title,
             content,
-            author_id AS authorId,
-            post_type AS postType,
+            author_id,
+            post_type,
             images,
             mark,
-            like_count AS likeCount,
-            comment_count AS commentCount,
-            view_count AS viewCount,
-            is_top AS isTop,
-            is_elite AS isElite,
+            like_count,
+            comment_count,
+            view_count,
+            is_top,
+            is_elite,
             status,
-            created_at AS createdAt
+            created_at
         FROM community_posts
         WHERE id = #{id}
     </select>
-    <select id="findPendingPosts" resultType="com.streetCat.pojo.Post">
+
+    <!-- 查询待审核帖子 -->
+    <select id="findPendingPosts" resultMap="PostResultMap">
         SELECT
             id,
             title,
             content,
-            author_id AS authorId,
-            post_type AS postType,
+            author_id,
+            post_type,
             images,
             mark,
-            like_count AS likeCount,
-            comment_count AS commentCount,
-            view_count AS viewCount,
-            is_top AS isTop,
-            is_elite AS isElite,
+            like_count,
+            comment_count,
+            view_count,
+            is_top,
+            is_elite,
             status,
-            created_at AS createdAt
+            created_at
         FROM community_posts
         WHERE status = 'PENDING'
         ORDER BY created_at DESC
     </select>
+
+    <!-- 根据用户ID查询帖子 -->
+    <select id="listPostsByUserId" resultMap="PostResultMap">
+        SELECT
+            id,
+            title,
+            content,
+            author_id,
+            post_type,
+            images,
+            like_count,
+            comment_count,
+            view_count,
+            is_top,
+            is_elite,
+            status,
+            mark,
+            created_at
+        FROM community_posts
+        WHERE author_id = #{userid}
+        ORDER BY created_at DESC
+    </select>
+
     <!-- 分页查询帖子（包含用户信息） -->
     <select id="listPosts" resultType="com.streetCat.pojo.PostWithUser">
         SELECT
@@ -129,6 +172,7 @@
         </if>
     </select>
 
+    <!-- 更新帖子状态 -->
     <update id="updatePostStatus">
         UPDATE community_posts
         SET status = #{status},
@@ -136,38 +180,24 @@
             updated_at = NOW()
         WHERE id = #{id}
     </update>
+
+    <!-- 检查是否为系统管理员 -->
     <select id="isSysAdmin" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM sys_admin
         WHERE id = #{id}
           AND role = 'SYSTEM_ADMIN'
     </select>
-    <select id="listPostsByUserId" resultType="com.streetCat.pojo.Post">
-        SELECT
-            id,
-            title,
-            content,
-            author_id AS authorId,
-            post_type AS postType,
-            images,
-            like_count AS likeCount,
-            comment_count AS commentCount,
-            view_count AS viewCount,
-            is_top AS isTop,
-            is_elite AS isElite,
-            status,
-            mark,
-            created_at AS createdAt
-        FROM community_posts
-        WHERE author_id = #{userid}
-        ORDER BY created_at DESC
-    </select>
+
+    <!-- 检查是否为帖子作者 -->
     <select id="isPostAuthor" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM community_posts
         WHERE id = #{id}
           AND author_id = #{userId}
     </select>
+
+    <!-- 更新帖子 -->
     <update id="updatePost">
         UPDATE community_posts
         SET title = #{request.title},
@@ -179,10 +209,13 @@
         WHERE id = #{id}
           AND author_id = #{userid}
     </update>
+
+    <!-- 删除帖子 -->
     <delete id="deletePost">
         DELETE FROM community_posts
         WHERE id = #{id}
     </delete>
+
     <!-- 置顶帖子 -->
     <update id="updatePostTopStatus">
         UPDATE community_posts
@@ -198,4 +231,5 @@
             updated_at = NOW()
         WHERE id = #{id}
     </update>
+
 </mapper>

@@ -5,6 +5,7 @@ import com.streetCat.pojo.PostWithUser;
 import com.streetCat.vo.request.CreateNewPostRequest;
 import com.streetCat.vo.request.UpdatePostStatusRequest;
 import com.streetCat.vo.response.PageResponse;
+import com.streetCat.vo.response.PostWithUserResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ public interface PostService {
 
     ArrayList<Post> findPendingPosts();
 
-    PageResponse<PostWithUser> listPosts(String keyword, String postType, String sort, Integer page, Integer size);
+    PageResponse<PostWithUserResponse> listPosts(String keyword, String postType, String sort, Integer page, Integer size);
 
     void updatePostStatus(String id,String userid, UpdatePostStatusRequest.PostStatus status, String remark);
 

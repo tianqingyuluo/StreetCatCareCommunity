@@ -19,7 +19,7 @@ public class CreateNewPostRequest {
     private String postType;
 
     @Schema(description = "图片地址列表")
-    private List<String> images;
+    private String images;
 
     public String getImagesJson() {
         if (images == null || images.isEmpty()) {
