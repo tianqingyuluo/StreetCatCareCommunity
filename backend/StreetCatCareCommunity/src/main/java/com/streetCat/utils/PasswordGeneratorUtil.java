@@ -2,7 +2,7 @@ package com.streetCat.utils;
 
 import java.security.SecureRandom;
 
-public final class PasswordGenerator {
+public final class PasswordGeneratorUtil {
     private static final String CHARS =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final SecureRandom RAND = new SecureRandom();
@@ -15,5 +15,5 @@ public final class PasswordGenerator {
         return sb.toString();
     }
 
-    private PasswordGenerator() {}   // 禁止实例化
+    private PasswordGeneratorUtil() {}   // 禁止实例化
 }

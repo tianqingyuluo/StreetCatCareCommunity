@@ -4,7 +4,8 @@ import com.streetCat.service.AdminService;
 import com.streetCat.utils.R;
 import com.streetCat.vo.request.Web_AdminLoginRequest;
 import com.streetCat.vo.request.Web_AdminRegisterRequest;
-import com.streetCat.vo.response.Web_AuthResponse;
+import com.streetCat.vo.response.Web_LoginResponse;
+import com.streetCat.vo.response.Web_RegisterResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +18,19 @@ public class Web_AuthController {
 
     @PostMapping("/admin/create-account")
     public ResponseEntity<Object> register(@Valid @RequestBody Web_AdminRegisterRequest request) {
-        R<Web_AuthResponse> r = adminService.register(request);
+        R<Web_RegisterResponse> r = adminService.register(request);
+        if(r.getData()==null){
+            return ResponseEntity.status(r.getCode()).body(r.getMsg());
+        }
         return ResponseEntity.status(r.getCode()).body(r.getData());
     }
 
     @PostMapping("/auth/login-web")
     public ResponseEntity<Object> login(@Valid @RequestBody Web_AdminLoginRequest request) {
-        R<Web_AuthResponse> r = adminService.login(request);
+        R<Web_LoginResponse> r = adminService.login(request);
+        if(r.getData()==null){
+            return ResponseEntity.status(r.getCode()).body(r.getMsg());
+        }
         return ResponseEntity.status(r.getCode()).body(r.getData());
     }
 }

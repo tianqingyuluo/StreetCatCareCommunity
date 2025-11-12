@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS shelters (
     description TEXT COMMENT '描述',
     license_number VARCHAR(100) COMMENT '许可证号',
     status ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
+    manager_id BIGINT NOT NULL COMMENT '救助站管理员id',
+    capacity INT NOT NULL COMMENT '猫最大容量',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     SPATIAL INDEX idx_shelter_location (location),
