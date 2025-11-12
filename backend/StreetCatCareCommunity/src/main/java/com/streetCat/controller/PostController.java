@@ -1,6 +1,4 @@
 package com.streetCat.controller;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streetCat.pojo.Post;
 import com.streetCat.service.PostService;
 import com.streetCat.utils.JwtUtil;

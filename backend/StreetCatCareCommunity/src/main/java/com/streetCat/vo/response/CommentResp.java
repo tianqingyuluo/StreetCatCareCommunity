@@ -57,7 +57,7 @@ public class CommentResp {
         if (comment.getPhotos() != null && !comment.getPhotos().trim().isEmpty()) {
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                this.photos = mapper.readValue(comment.getPhotos(), new TypeReference<List<String>>() {});
+                this.photos = mapper.readValue(comment.getPhotos(), new TypeReference<>() {});
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

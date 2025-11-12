@@ -1,5 +1,4 @@
 package com.streetCat.dao;
-import com.streetCat.vo.request.PutUserLocationRequest;
 import com.streetCat.vo.request.PutUserRequest;
 import org.apache.ibatis.annotations.Mapper;
 import com.streetCat.pojo.User;

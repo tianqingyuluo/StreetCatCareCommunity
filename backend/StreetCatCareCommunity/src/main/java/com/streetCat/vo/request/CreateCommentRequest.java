@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @Schema(description = "创建评论请求")
 public class CreateCommentRequest {

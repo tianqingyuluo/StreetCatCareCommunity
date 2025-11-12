@@ -1,7 +1,6 @@
 package com.streetCat.service;
 
 import com.streetCat.pojo.Post;
-import com.streetCat.pojo.PostWithUser;
 import com.streetCat.vo.request.CreateNewPostRequest;
 import com.streetCat.vo.request.UpdatePostStatusRequest;
 import com.streetCat.vo.response.PageResponse;
@@ -21,7 +20,7 @@ public interface PostService {
 
     List<Post> listPostsByUserId(String userId);
 
-    boolean isPostAuthor( String id, String userId);
+    boolean isPostAuthor( String Id, String userId);
 
     Post updatePost(String id, String userId, CreateNewPostRequest postSaveReq);
 

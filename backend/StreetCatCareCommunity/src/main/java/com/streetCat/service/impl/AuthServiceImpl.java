@@ -11,7 +11,6 @@ import com.streetCat.vo.request.PutUserRequest;
 import com.streetCat.vo.response.GetUserResponse;
 import com.streetCat.vo.response.UserLoginResponse;
 import com.streetCat.vo.response.WxSessionResp;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

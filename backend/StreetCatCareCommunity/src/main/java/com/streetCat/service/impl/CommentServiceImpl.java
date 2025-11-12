@@ -1,9 +1,7 @@
 package com.streetCat.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.streetCat.dao.CommentMapper;
 import com.streetCat.pojo.Comment;
-import com.streetCat.pojo.UserInfo;
 import com.streetCat.service.CommentService;
 import com.streetCat.utils.RandomUtil;
 import com.streetCat.vo.request.CreateCommentRequest;

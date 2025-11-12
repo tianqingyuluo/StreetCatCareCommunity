@@ -9,7 +9,6 @@ import com.streetCat.vo.response.CommentResp;
 import com.streetCat.vo.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +23,6 @@ import java.util.Map;
 public class CommentController {
 
     private final CommentService commentService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     @PostMapping
     @Operation(summary = "发布评论")
     public ResponseEntity<Object> createComment(
