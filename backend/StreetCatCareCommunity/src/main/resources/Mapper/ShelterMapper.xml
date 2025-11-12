@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.streetCat.dao.ShelterMapper">
+
+    <resultMap id="BaseResultMap" type="com.streetCat.pojo.Shelter">
+        <result column="location" property="location" jdbcType="BLOB"/>
+    </resultMap>
+
+    <select id="getSheltersByKeyword" resultMap="BaseResultMap">
+        SELECT *,
+        ST_AsText(location) AS stringLocation
+        FROM shelters
+        <if test="status != null and status != ''">
+            WHERE status = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE CONCAT('%', #{keyword}, '%')
+            OR address LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+    <update id="updateShelter" parameterType="com.streetCat.pojo.Shelter">
+        UPDATE shelters
+        <set>
+            <if test="shelter.name != null and shelter.name != ''">name = #{shelter.name},</if>
+            <if test="shelter.contactPerson != null and shelter.contactPerson != ''">contact_person = #{shelter.contactPerson},</if>
+            <if test="shelter.phone != null and shelter.phone != ''">phone = #{shelter.phone},</if>
+            <if test="shelter.email != null and shelter.email != ''">email = #{shelter.email},</if>
+            <if test="shelter.location != null">location = ST_GeomFromText(#{shelter.location}, 4326),</if>
+            <if test="shelter.stringLocation != null and shelter.stringLocation != ''">string_location = #{shelter.stringLocation},</if>
+            <if test="shelter.address != null and shelter.address != ''">address = #{shelter.address},</if>
+            <if test="shelter.description != null and shelter.description != ''">description = #{shelter.description},</if>
+            <if test="shelter.licenseNumber != null and shelter.licenseNumber != ''">license_number = #{shelter.licenseNumber},</if>
+            <if test="shelter.managerId != null and shelter.managerId != ''">manager_id = #{shelter.managerId},</if>
+            <if test="shelter.capacity != null and shelter.capacity != ''">capacity = #{shelter.capacity},</if>
+            <if test="shelter.updatedAt != null and shelter.updatedAt != ''">updated_at = #{shelter.updatedAt},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>
