@@ -17,5 +17,6 @@ public interface UserMapper {
                     @Param("putUserRequest") PutUserRequest putUserRequest);
 
     void putUserLocationById(@Param("userId") String userId,
-                             @Param("putUserLocationRequest") PutUserLocationRequest putUserLocationRequest);
-}
+                             @Param("lon") Double lon,
+                             @Param("lat") Double lat,
+                             @Param("address") String address);}

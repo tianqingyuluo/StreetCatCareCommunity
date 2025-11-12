@@ -32,4 +32,6 @@ public interface PostService {
     void updatePostTopStatus(String id, Boolean isTop);
 
     void updatePostEliteStatus(String id, Boolean isElite);
+
+    Post findPostById(String id);
 }

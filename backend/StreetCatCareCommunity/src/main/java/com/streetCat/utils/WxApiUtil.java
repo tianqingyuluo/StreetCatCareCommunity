@@ -35,7 +35,6 @@ public class WxApiUtil {
                 .addQuery("grant_type", "authorization_code")
                 .build();
 
-        System.out.println("实际访问路径: " + url);
         String response = HttpUtil.get(url);
         System.out.println("微信API原始响应: " + response);
 

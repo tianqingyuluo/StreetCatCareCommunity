@@ -140,11 +140,10 @@ CREATE TABLE IF NOT EXISTS user_favorites (
 CREATE TABLE IF NOT EXISTS comments (
                                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                         content TEXT NOT NULL,
-                                        floor BIGINT,
                                         author_id BIGINT NOT NULL,
                                         target_type ENUM('CAT', 'POST') NOT NULL,
     target_id BIGINT NOT NULL,
-    images TEXT COMMENT '图片列表JSON字符串',
+    photos TEXT COMMENT '图片列表JSON字符串',
     parent_id BIGINT COMMENT '父评论ID',
     like_count INT DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

@@ -100,4 +100,8 @@ public class PostServiceImpl implements PostService {
         postmapper.updatePostEliteStatus(id,isElite);
     }
 
+    @Override
+    public Post findPostById(String id) {
+        return  postmapper.getPostById(Long.valueOf(id));
+    }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streetCat.pojo.Post;
 import com.streetCat.service.PostService;
 import com.streetCat.utils.JwtUtil;
+import com.streetCat.utils.RequestUtil;
 import com.streetCat.vo.request.CreateNewPostRequest;
 import com.streetCat.vo.request.UpdatePostStatusRequest;
 import com.streetCat.vo.response.PostResponse;
@@ -37,35 +38,13 @@ public class PostController {
         String userId = JwtUtil.parse(token.replace("Bearer ", ""));
 
         try {
-            // 手动解析请求体
-            CreateNewPostRequest createNewPostRequest = new CreateNewPostRequest();
-            createNewPostRequest.setTitle((String) requestBody.get("title"));
-            createNewPostRequest.setContent((String) requestBody.get("content"));
-            createNewPostRequest.setPostType((String) requestBody.get("postType"));
-
-            // 处理images字段 - 无论是数组还是字符串都转为JSON字符串
-            Object images = requestBody.get("images");
-            if (images != null) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                String imagesJson = objectMapper.writeValueAsString(images);
-                createNewPostRequest.setImages(imagesJson);
-            } else {
-                createNewPostRequest.setImages("[]");
-            }
-
-            System.out.println("转换后的images: " + createNewPostRequest.getImages());
+            CreateNewPostRequest createNewPostRequest = RequestUtil.convertToCreateNewPostRequest(requestBody);
 
             Post response = postService.createNewPost(userId, createNewPostRequest);
-            return ResponseEntity.ok(response);
+            PostResponse res = new PostResponse(response);
+            return ResponseEntity.ok(res);
 
         } catch (Exception e) {
-            System.out.println("=== 创建帖子详细错误信息 ===");
-            System.out.println("错误类型: " + e.getClass().getName());
-            System.out.println("错误消息: " + e.getMessage());
-            System.out.println("=== 请求参数信息 ===");
-            System.out.println("userId: " + userId);
-            System.out.println("requestBody: " + requestBody);
-
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("创建帖子失败: " + e.getMessage());
         }
@@ -92,13 +71,15 @@ public class PostController {
     }
 
     @PatchMapping("/posts/{id}/status")
-    public ResponseEntity<String> updatePostStatus(
+    public ResponseEntity<PostResponse> updatePostStatus(
             @RequestHeader("Authorization") String token,
             @PathVariable String id,
             @RequestBody @Valid UpdatePostStatusRequest request) {
         String userId = JwtUtil.parse(token.replace("Bearer ", ""));
          postService.updatePostStatus(id,userId, request.getStatus(), request.getRemark());
-        return ResponseEntity.ok("更新成功");
+        Post response = postService.findPostById(id);
+        PostResponse res = new PostResponse(response);
+        return ResponseEntity.ok(res);
     }
     @GetMapping("/posts/me")
     public ResponseEntity<Object> listPostsByUserId(@RequestHeader("Authorization") String token){
@@ -117,20 +98,37 @@ public class PostController {
     public ResponseEntity<Object> updatePost(
             @RequestHeader("Authorization") String token,
             @PathVariable String id,
-            @RequestBody CreateNewPostRequest postSaveReq) {
+            @RequestBody Map<String, Object> requestBody) { // 改为Map接收，提高兼容性
+
+        // Token验证
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未携带token或token格式错误");
+        }
+
         String userId = JwtUtil.parse(token.replace("Bearer ", ""));
-        if (!postService.isPostAuthor(userId, id)) {
+
+        // 权限验证
+        if (!postService.isPostAuthor( id,userId)) {
             return ResponseEntity.badRequest().body("你不是这篇帖子的作者");
         }
-        Post response= postService.updatePost(id,userId,postSaveReq);
-        return ResponseEntity.ok(response);
+
+        try {
+            CreateNewPostRequest updateRequest = RequestUtil.convertToCreateNewPostRequest(requestBody);
+            Post response = postService.updatePost(id, userId, updateRequest);
+            PostResponse res = new PostResponse(response);
+            return ResponseEntity.ok(res);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("编辑帖子失败: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/posts/{id}")
     @Operation(summary = "删帖子")
     public ResponseEntity<String> deletePost(@RequestHeader("Authorization") String token,@PathVariable String id) {
         String userId = JwtUtil.parse(token.replace("Bearer ", ""));
-        if (!postService.isPostAuthor(userId,id) && !postService.isSysAdmin(userId)) {
+        if (!postService.isPostAuthor(id,userId) && !postService.isSysAdmin(userId)) {
             return ResponseEntity.badRequest().body("你不是这篇帖子的作者");
         }
         postService.deletePost(id);

@@ -1,14 +1,15 @@
 package com.streetCat.controller;
 
-import cn.hutool.json.JSONUtil;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streetCat.service.AuthService;
 import com.streetCat.utils.JwtUtil;
-import com.streetCat.utils.WxApiUtil;
 import com.streetCat.vo.request.PutUserLocationRequest;
 import com.streetCat.vo.request.PutUserRequest;
 import com.streetCat.vo.response.GetUserResponse;
 import com.streetCat.vo.response.UserLoginResponse;
-import com.streetCat.vo.response.WxSessionResp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -43,8 +44,10 @@ public class AuthController {
 
     @PostMapping("/auth/login-wechat")
     @Operation(summary = "微信openid一键登录/注册")
-    public ResponseEntity<Object> loginWechat(@RequestBody String json) {
-        String code = JSONUtil.parseObj(json).getStr("code");
+    public ResponseEntity<Object> loginWechat(@RequestBody String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readTree(json);
+        String code = jsonNode.get("code").asText();
         try {
             UserLoginResponse resp = authService.loginWechat(code);
             return ResponseEntity.ok(resp);
@@ -61,15 +64,21 @@ public class AuthController {
     @Operation(summary = "更新常驻地理位置")
     public Object updateLocation(@RequestHeader("Authorization") String token,
                                  @RequestBody PutUserLocationRequest putUserLocationRequest) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未携带token或token格式错误");
+        try {
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未携带token或token格式错误");
+            }
+            if (!isValidLocation(putUserLocationRequest.getLon(), putUserLocationRequest.getLat())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("位置信息错误");
+            }
+            String userId = JwtUtil.parse(token.replace("Bearer ", ""));
+            authService.updateLocationById(userId, putUserLocationRequest);
+            return ResponseEntity.status(HttpStatus.OK).body("更新位置信息成功");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("系统内部错误");
         }
-        if (!isValidLocation(putUserLocationRequest.getLon(), putUserLocationRequest.getLat())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("位置信息错误");
-        }
-        String userId = JwtUtil.parse(token.replace("Bearer ", ""));
-        authService.updateLocationById(userId,putUserLocationRequest);
-        return ResponseEntity.status(HttpStatus.OK).body("更新位置信息成功");
     }
 
     @GetMapping("/user/{userid}")

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.streetCat.dao.CommentMapper">
+
+    <!-- 定义Comment结果映射 -->
+    <resultMap id="CommentResultMap" type="com.streetCat.pojo.Comment">
+        <id column="id" property="id"/>
+        <result column="content" property="content"/>
+        <result column="author_id" property="author.id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="photos" property="photos"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="target_type" property="targetType"/>
+        <result column="target_id"   property="targetId"/>
+        <!-- 用户信息映射 -->
+        <association property="author" javaType="com.streetCat.pojo.UserInfo">
+            <id column="author_id" property="id"/>
+            <result column="nickname" property="nickname"/>
+            <result column="avatar_url" property="avatar"/>
+        </association>
+    </resultMap>
+    <!-- 插入评论 -->
+    <insert id="insertComment">
+        INSERT INTO comments (
+            id,
+            target_type,
+            target_id,
+            parent_id,
+            content,
+            author_id,
+            photos,
+            like_count,
+            created_at
+        ) VALUES (
+                     #{id},
+                     #{request.targetType},
+                     #{request.targetId},
+                     #{request.parentId},
+                     #{request.content},
+                     #{userId},
+                     #{request.photos},
+                     0,
+                     NOW()
+                 )
+    </insert>
+
+    <!-- 根据ID查询评论 -->
+    <select id="selectCommentById" resultMap="CommentResultMap">
+        SELECT
+            c.id,
+            c.content,
+            c.parent_id,
+            c.like_count,
+            c.photos,
+            c.created_at,
+            c.author_id,
+            u.nickname,
+            c.target_type,
+            c.target_id,
+            u.avatar_url
+        FROM comments c
+                 LEFT JOIN users u ON c.author_id = u.id
+        WHERE c.id = #{id}
+    </select>
+    <!-- 根评论 -->
+    <select id="listRootComment" resultMap="CommentResultMap">
+        SELECT
+            c.id,
+            c.content,
+            c.parent_id,
+            c.like_count,
+            c.target_type,
+            c.target_id,
+            c.photos,
+            c.created_at,
+            c.author_id,
+            u.nickname,
+            u.avatar_url
+        FROM comments c
+                 LEFT JOIN users u ON c.author_id = u.id
+        WHERE c.target_type = #{targetType}
+          AND c.target_id   = #{targetId}
+          AND c.parent_id IS NULL
+        ORDER BY c.created_at
+    </select>
+
+    <!-- 子评论 -->
+    <select id="listChildComment" resultMap="CommentResultMap">
+        SELECT
+        c.id,
+        c.content,
+        c.parent_id,
+        c.like_count,
+        c.photos,
+        c.created_at,
+        c.target_type,
+        c.target_id,
+        c.author_id,
+        u.nickname,
+        u.avatar_url
+        FROM comments c
+        LEFT JOIN users u ON c.author_id = u.id
+        WHERE c.target_type = #{targetType}
+        AND c.target_id   = #{targetId}
+        AND c.parent_id IN
+        <foreach collection="parentIds" item="pid" open="(" separator="," close=")">
+            #{pid}
+        </foreach>
+        ORDER BY c.created_at
+    </select>
+</mapper>

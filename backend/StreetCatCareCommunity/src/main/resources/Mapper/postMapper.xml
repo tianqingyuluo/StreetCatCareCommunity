@@ -175,9 +175,10 @@
     <!-- 更新帖子状态 -->
     <update id="updatePostStatus">
         UPDATE community_posts
-        SET status = #{status},
-            mark = #{remark},
-            updated_at = NOW()
+        SET mark = #{remark},
+            updated_at = NOW(),
+            status=#{status}
+
         WHERE id = #{id}
     </update>
 

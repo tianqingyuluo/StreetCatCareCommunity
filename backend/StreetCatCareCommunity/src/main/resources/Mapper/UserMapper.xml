@@ -69,11 +69,11 @@
     <update id="putUserLocationById">
         UPDATE users
         <set>
-            <if test="putUserLocationRequest.lon != null and putUserLocationRequest.lat != null">
-                home_location = ST_GeomFromText(CONCAT('POINT(', #{putUserLocationRequest.lon}, ' ', #{putUserLocationRequest.lat}, ')'), 4326),
+            <if test="lon != null and lat != null">
+                home_location = ST_GeomFromText(CONCAT('POINT(', #{lat}, ' ', #{lon}, ')'), 4326),
             </if>
-            <if test="putUserLocationRequest.address != null and putUserLocationRequest.address != ''">
-                home_address = #{putUserLocationRequest.address},
+            <if test="address != null and address != ''">
+                home_address = #{address},
             </if>
             updated_at = NOW()
         </set>
