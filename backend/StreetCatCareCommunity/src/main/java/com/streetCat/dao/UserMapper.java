@@ -1,5 +1,4 @@
 package com.streetCat.dao;
-import com.streetCat.vo.request.PutUserLocationRequest;
 import com.streetCat.vo.request.PutUserRequest;
 import org.apache.ibatis.annotations.Mapper;
 import com.streetCat.pojo.User;
@@ -17,5 +16,6 @@ public interface UserMapper {
                     @Param("putUserRequest") PutUserRequest putUserRequest);
 
     void putUserLocationById(@Param("userId") String userId,
-                             @Param("putUserLocationRequest") PutUserLocationRequest putUserLocationRequest);
-}
+                             @Param("lon") Double lon,
+                             @Param("lat") Double lat,
+                             @Param("address") String address);}

@@ -11,7 +11,6 @@ import com.streetCat.vo.request.PutUserRequest;
 import com.streetCat.vo.response.GetUserResponse;
 import com.streetCat.vo.response.UserLoginResponse;
 import com.streetCat.vo.response.WxSessionResp;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -91,9 +90,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void updateLocationById(String userId, PutUserLocationRequest putUserLocationRequest) {
         if (putUserLocationRequest.getLon() != null && putUserLocationRequest.getLat() != null) {
-            Double lon = putUserLocationRequest.getLon();
-            Double lat = putUserLocationRequest.getLat();
+            double lon = putUserLocationRequest.getLon();
+            double lat = putUserLocationRequest.getLat();
 
+            if (lon == -180 || lon == 180 || lat == -90 || lat == 90) {
+                throw new RuntimeException("用户使用了边界坐标");
+            }
             if (lon < -180 || lon > 180) {
                 throw new RuntimeException("经度范围错误，应在 -180 到 180 之间");
             }
@@ -101,7 +103,12 @@ public class AuthServiceImpl implements AuthService {
                 throw new RuntimeException("纬度范围错误，应在 -90 到 90 之间");
             }
         }
-        userMapper.putUserLocationById(userId,putUserLocationRequest);
+        userMapper.putUserLocationById(
+                userId,
+                putUserLocationRequest.getLon(),
+                putUserLocationRequest.getLat(),
+                putUserLocationRequest.getAddress()
+        );
     }
 
 }

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.streetCat.dao.FavoriteMapper">
+
+    <!-- 插入收藏记录 -->
+    <insert id="insertFavorite">
+        INSERT INTO user_favorites (user_id, target_type, target_id, created_at)
+        VALUES (#{userId}, #{targetType}, #{targetId}, NOW())
+    </insert>
+
+    <!-- 删除收藏记录 -->
+    <delete id="deleteFavorite">
+        DELETE FROM user_favorites
+        WHERE user_id = #{userId} AND target_type = #{targetType} AND target_id = #{targetId}
+    </delete>
+
+    <!-- 获取用户收藏的猫咪ID列表 -->
+    <select id="getFavoriteCatIds" resultType="java.lang.Long">
+        SELECT target_id
+        FROM user_favorites
+        WHERE user_id = #{userId} AND target_type = 'CAT'
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 获取用户收藏的帖子ID列表 -->
+    <select id="getFavoritePostIds" resultType="java.lang.Long">
+        SELECT target_id
+        FROM user_favorites
+        WHERE user_id = #{userId} AND target_type = 'POST'
+        ORDER BY created_at DESC
+    </select>
+    <select id="getAllFavorites" resultMap="FavoriteDetailResultMap">
+        SELECT
+        uf.target_type,
+        uf.target_id,
+        uf.created_at,
+        <!-- 帖子字段，加上 p_ 前缀 -->
+        p.id as p_id,
+        p.title as p_title,
+        p.content as p_content,
+        p.post_type as p_post_type,
+        p.author_id as p_author_id,
+        p.like_count as p_like_count,
+        p.comment_count as p_comment_count,
+        p.view_count as p_view_count,
+        p.images as p_images,
+        p.status as p_status,
+        p.created_at as p_created_at,
+        p.mark as p_mark,
+        p.favorite_count as p_favorite_count,
+        <!-- 猫咪字段，加上 c_ 前缀 -->
+        c.id as c_id,
+        c.name as c_name,
+        c.breed as c_breed,
+        c.gender as c_gender,
+        c.age_months as c_age_months,
+        c.health_status as c_health_status,
+        c.description as c_description,
+        c.photos as c_photos,
+        c.is_neutered as c_is_neutered,
+        c.vaccination_status as c_vaccination_status,
+        c.status as c_status,
+        c.shelter_id as c_shelter_id,
+        c.created_by as c_created_by,
+        c.like_count as c_like_count,
+        c.comment_count as c_comment_count,
+        c.view_count as c_view_count,
+        c.favorite_count as c_favorite_count,
+        c.created_at as c_created_at,
+        c.updated_at as c_updated_at
+        FROM user_favorites uf
+        LEFT JOIN community_posts p ON uf.target_type = 'POST' AND uf.target_id = p.id
+        LEFT JOIN stray_cats c ON uf.target_type = 'CAT' AND uf.target_id = c.id
+        WHERE uf.user_id = #{userId}
+        ORDER BY uf.created_at DESC
+    </select>
+
+    <resultMap id="FavoriteDetailResultMap" type="com.streetCat.vo.response.FavoriteDetailResponse">
+        <result property="targetType" column="target_type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="createdAt" column="created_at"/>
+
+        <!-- 帖子信息关联 -->
+        <association property="post" javaType="com.streetCat.vo.response.FavoriteDetailResponse$PostInfo">
+            <id property="id" column="p_id"/>
+            <result property="title" column="p_title"/>
+            <result property="content" column="p_content"/>
+            <result property="postType" column="p_post_type"/>
+            <result property="authorId" column="p_author_id"/>
+            <result property="likeCount" column="p_like_count"/>
+            <result property="commentCount" column="p_comment_count"/>
+            <result property="viewCount" column="p_view_count"/>
+            <result property="images" column="p_images"/>
+            <result property="status" column="p_status"/>
+            <result property="createdAt" column="p_created_at"/>
+            <result property="mark" column="p_mark"/>
+            <result property="favoriteCount" column="p_favorite_count"/>
+        </association>
+
+        <!-- 猫咪信息关联 -->
+        <association property="cat" javaType="com.streetCat.vo.response.FavoriteDetailResponse$CatInfo">
+            <id property="id" column="c_id"/>
+            <result property="name" column="c_name"/>
+            <result property="breed" column="c_breed"/>
+            <result property="gender" column="c_gender"/>
+            <result property="ageMonths" column="c_age_months"/>
+            <result property="healthStatus" column="c_health_status"/>
+            <result property="description" column="c_description"/>
+            <result property="photos" column="c_photos"/>
+            <result property="isNeutered" column="c_is_neutered"/>
+            <result property="vaccinationStatus" column="c_vaccination_status"/>
+            <result property="status" column="c_status"/>
+            <result property="shelterId" column="c_shelter_id"/>
+            <result property="createdBy" column="c_created_by"/>
+            <result property="likeCount" column="c_like_count"/>
+            <result property="commentCount" column="c_comment_count"/>
+            <result property="viewCount" column="c_view_count"/>
+            <result property="favoriteCount" column="c_favorite_count"/>
+            <result property="createdAt" column="c_created_at"/>
+            <result property="updatedAt" column="c_updated_at"/>
+        </association>
+    </resultMap>
+</mapper>
