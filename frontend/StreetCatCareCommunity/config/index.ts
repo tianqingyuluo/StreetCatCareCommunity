@@ -1,5 +1,6 @@
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
 
+import path from 'path'
 import tailwindcss from 'tailwindcss'
 import { UnifiedViteWeappTailwindcssPlugin as uvtw } from 'weapp-tailwindcss'
 
@@ -31,6 +32,12 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       options: {
       }
     },
+    alias: {
+      '@/ui': path.resolve(__dirname, '..', 'src/components/ui'),
+      '@/services': path.resolve(__dirname, '..', 'src/services'),
+      '@/stores': path.resolve(__dirname, '..', 'src/stores'),
+      '@/utils': path.resolve(__dirname, '..', 'src/utils'),
+    },
     framework: 'react',
     compiler: {
       type:'vite',
@@ -43,6 +50,7 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
             if (typeof config.css?.postcss === 'object') {
               config.css?.postcss.plugins?.unshift(tailwindcss())
             }
+            
           },
         },
         uvtw({

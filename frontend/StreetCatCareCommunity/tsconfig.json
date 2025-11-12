@@ -20,9 +20,13 @@
     "typeRoots": [
       "node_modules/@types"
     ],
+    "baseUrl": ".",
     "paths": {
       // TS5090 leading './'
-      "@/*": ["./src/*"]
+      "@/utils": ["./src/utils"],
+      "@/stores": ["./src/stores"],
+      "@/services": ["./src/services"],
+      "@/ui": ["./src/components/ui"]
     }
   },
   "include": ["./src", "./types", "./config"],
