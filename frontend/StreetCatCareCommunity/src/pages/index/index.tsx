@@ -1,8 +1,9 @@
 import { View, Text } from '@tarojs/components'
-import { redirectTo } from '@tarojs/taro'
+import { redirectTo, navigateTo } from '@tarojs/taro'
 import { Button } from '@/ui/button'
 import { FontAwesome } from 'taro-icons'
 import { useNavigationStore } from '@/stores/navigationStore'
+import { useCatStore } from '@/stores/catStore'
 import { useLoad, getCurrentInstance } from '@tarojs/taro'
 import { tabRoutes } from '@/utils/navRouteMap'
 import { Card, ImageWithFallback, Badge } from '@/ui'
@@ -13,6 +14,13 @@ import './index.scss'
 export default function Index () {
 
   const { activeTab, showBottomNav, changeTab, setShowBottomNav } = useNavigationStore()
+
+  const handleCatClick = (catId: number) => {
+    console.log('Clicked cat:', catId)
+    useCatStore.getState().setSelectedCatId(catId);
+    // 跳转到详情页
+    navigateTo({url: "/pages/catDetails/catDetails"})
+  }
 
   // 页面监听路由变化
   useLoad(() => {
@@ -94,10 +102,10 @@ export default function Index () {
               <Card
                 key={cat.id}
                 className='overflow-hidden cursor-pointer hover:shadow-lg transition-shadow bg-[#ffffff]'
-                onClick={() => redirectTo({url: "/pages/catDetial"})}>
+                onClick={() => handleCatClick(cat.id)}>
                   <View className='flex gap-3 p-3'>
                     <View className='relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0'>
-                      <ImageWithFallback src={cat.image} className='w-full h-full object-cover'/>
+                      <ImageWithFallback src={cat.image} className='w-full h-full' mode="aspectFill" />
                       <View className='absolute top-2 right-2'>
                         <Badge className='bg-[#ff8c42] text-[#ffffff] text-xs px-2 py-0.5'>
                           {cat.status}
@@ -114,11 +122,11 @@ export default function Index () {
                       
                       <View className="flex items-center justify-between">
                         <View className="flex items-center gap-1 text-[#78716c] text-xs">
-                          <FontAwesome family='solid' name='map-marker-alt' className="w-3 h-3" />
+                          <FontAwesome family='solid' name='map-marker-alt' size={14} className="w-3 h-3" />
                           <View>{cat.location}</View>
                         </View>
                         <View className="flex items-center gap-1 text-primary text-xs">
-                          <FontAwesome family='regular' name='heart' className="w-3 h-3 fill-primary" />
+                          <FontAwesome family='regular' name='heart' size={15} color="red" className="w-3 h-3 fill-primary" />
                           <View>{cat.likes}</View>
                         </View>
                       </View>

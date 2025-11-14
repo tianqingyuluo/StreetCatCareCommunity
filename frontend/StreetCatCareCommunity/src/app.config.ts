@@ -5,6 +5,7 @@ export default defineAppConfig({
     'pages/cats/cats',
     'pages/community/community',
     'pages/user/user',
+    'pages/catDetails/catDetails'
   ],
   tabBar: {
     selectedColor: "#ff8c42",

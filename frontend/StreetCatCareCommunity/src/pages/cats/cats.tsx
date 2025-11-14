@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { View, Text, Image, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import { View, Text, ScrollView } from '@tarojs/components';
+import { navigateTo } from '@tarojs/taro';
 import { FontAwesome } from 'taro-icons'
 import { Card } from '@/ui/card';
 import { Badge } from '@/ui/badge';
@@ -10,6 +10,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui
 import { RadioGroup, RadioGroupItem } from '@/ui/radio-group';
 import { Label } from '@/ui/label';
 import { ImageWithFallback } from '@/ui/image';
+
+import { useCatStore } from '@/stores/catStore';
+
+// ... (其他接口和状态保持不变)
 
 interface CatListPageProps {
   onNavigate: (page: string, data?: any) => void;
@@ -120,8 +124,9 @@ export default function CatListPage({ onNavigate }: CatListPageProps) {
     return matchesSearch && matchesBreed && matchesGender && matchesHealth;
   });
 
-  const handleCatClick = (cat: Cat) => {
-    onNavigate('catDetail', cat);
+  const handleCatClick = (catId: number) => {
+    useCatStore.getState().setSelectedCatId(catId);
+    navigateTo({ url: `/pages/catDetails/catDetails` });
   };
 
   const handleSearch = (value: string) => {
@@ -130,19 +135,13 @@ export default function CatListPage({ onNavigate }: CatListPageProps) {
 
   return (
     <ScrollView className="pb-20 bg-[#fafaf9] min-h-screen" scrollY>
-      {/* Header */}
+      {/* Header - 保持不变 */}
       <View className="bg-gradient-to-br from-orange-600 to-orange-300 px-4 pt-8 pb-6 rounded-3xl">
-        <Text className="text-[#ffffff] text-2xl mb-5 font-bold">猫咪列表</Text>
+        <Text className="text-[#ffffff] text-2xl mb-5">猫咪列表</Text>
 
-        {/* Search Bar */}
+        {/* Search Bar - 保持不变 */}
         <View className="flex gap-2 flex-row items-center mt-4">
           <View className="flex-1 relative">
-            {/* 🔍 搜索图标占位符 - 请替换为 Search Icon */}
-            {/* <FontAwesome family='solid' name='search' color='white' size={17} className="left-1/2 -translate-y-1/2"></FontAwesome> */}
-            {/* <Text className="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]">
-              🔍
-            </Text> */}
-
             <Input
               placeholder="搜索猫咪名称或品种..."
               value={searchQuery}
@@ -157,7 +156,6 @@ export default function CatListPage({ onNavigate }: CatListPageProps) {
                 size="icon"
                 className="bg-[#ffffff] text-[#ff8c42] hover:bg-[rgba(255,255,255,0.9)] ml-5 rounded-full h-11 w-11 flex-shrink-0 z-50"
               >
-                {/* ⚙️ 筛选图标占位符 - 请替换为 Filter Icon */}
                 <FontAwesome family="solid" name="filter" color="gray" size={15}></FontAwesome>
               </Button>
             </SheetTrigger>
@@ -167,7 +165,7 @@ export default function CatListPage({ onNavigate }: CatListPageProps) {
               </SheetHeader>
 
               <ScrollView className="space-y-6 mt-6" scrollY>
-                {/* 品种筛选 */}
+                {/* 筛选内容 - 保持不变 */}
                 <View className="mb-6">
                   <Text className="mb-3 font-bold">品种</Text>
                   <RadioGroup value={filterBreed} onChange={(e) => {
@@ -193,7 +191,6 @@ export default function CatListPage({ onNavigate }: CatListPageProps) {
                   </RadioGroup>
                 </View>
 
-                {/* 性别筛选 */}
                 <View className="mb-6">
                   <Text className="mb-3 font-bold">性别</Text>
                   <RadioGroup value={filterGender} onChange={(e) => setFilterGender(e.detail.value)}>
@@ -212,7 +209,6 @@ export default function CatListPage({ onNavigate }: CatListPageProps) {
                   </RadioGroup>
                 </View>
 
-                {/* 健康状态筛选 */}
                 <View className="mb-6">
                   <Text className="mb-3 font-bold">健康状态</Text>
                   <RadioGroup value={filterHealth} onChange={(e) => setFilterHealth(e.detail.value)}>
@@ -236,17 +232,30 @@ export default function CatListPage({ onNavigate }: CatListPageProps) {
         </View>
       </View>
 
-      {/* Cat List */}
-      <View className="px-4 py-4">
-        <Text className="text-[#78716c] text-sm mb-4 mt-2">
+      {/* Cat List - 瀑布流布局应用区域 */}
+      <View className="px-2 py-4"> {/* 减小外边距，让卡片更贴近屏幕 */}
+        <Text className="text-[#78716c] text-sm mb-4 mt-2 px-2">
           共找到 {filteredCats.length} 只猫咪
         </Text>
 
-        <View className="grid grid-cols-2 gap-3">
+        {/* **核心修改区域**：使用 column-count 实现瀑布流 */}
+        <View 
+          className="w-full"
+          style={{
+            columnCount: 2, // 两列布局
+            columnGap: '8px', // 对应原 gap-3，这里调整为更小的间隙，以实现 “紧贴” 的视觉效果
+          }}
+        >
           {filteredCats.map((cat) => (
-            <View key={cat.id} onClick={() => handleCatClick(cat)}>
-              <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow bg-[#ffffff]">
-                <View className="relative aspect-square">
+            <View 
+              key={cat.id} 
+              onClick={() => handleCatClick(cat.id)}
+              // 应用 break-inside: avoid 确保卡片内容不被分列
+              style={{ breakInside: 'avoid', marginBottom: '8px' }} // 样式中明确设置卡片间的间距
+              className="w-full cursor-pointer mb-2" // mb-2 保证卡片底部有微小间距
+            >
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow bg-[#ffffff]">
+                <View className="relative aspect-auto">
                   <ImageWithFallback
                     src={cat.image}
                     alt={cat.name}
@@ -261,20 +270,20 @@ export default function CatListPage({ onNavigate }: CatListPageProps) {
                 </View>
 
                 <View className="p-3">
-                  <Text className="text-[oklch(0.145_0_0)] mb-1 font-bold">{cat.name}</Text>
-                  <Text className="text-[#78716c] text-sm mb-2">
-                    {cat.breed} · {cat.age}
-                  </Text>
-
+                  <View className='flex flex-col'>
+                    <Text className="text-[oklch(0.145_0_0)] mb-1 font-bold">{cat.name}</Text>
+                    <Text className="text-[#78716c] text-sm mb-2">
+                      {cat.breed} · {cat.age}
+                    </Text>
+                  </View>
+                  
                   <View className="flex items-center justify-between text-xs">
                     <View className="flex items-center gap-1 flex-row">
-                      {/* 📍 位置图标占位符 - 请替换为 MapPin Icon */}
-                      <Text className="text-[#78716c]">📍</Text>
+                      <FontAwesome family='solid' name='map-marker-alt' size={14} className="w-3 h-3" />
                       <Text className="text-[#78716c]">{cat.location}</Text>
                     </View>
                     <View className="flex items-center gap-1 flex-row text-[#ff8c42]">
-                      {/* ❤️ 点赞图标占位符 - 请替换为 Heart Icon */}
-                      <Text className="text-[#ff8c42]">❤️</Text>
+                      <FontAwesome family="regular" name="heart" size={15} color="red" className="w-3 h-3 fill-primary"></FontAwesome>
                       <Text className="text-[#ff8c42]">{cat.likes}</Text>
                     </View>
                   </View>

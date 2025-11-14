@@ -23,10 +23,10 @@
     "baseUrl": ".",
     "paths": {
       // TS5090 leading './'
-      "@/utils": ["./src/utils"],
-      "@/stores": ["./src/stores"],
-      "@/services": ["./src/services"],
-      "@/ui": ["./src/components/ui"]
+      "@/utils/*": ["./src/utils"],
+      "@/stores/*": ["./src/stores"],
+      "@/services/*": ["./src/services"],
+      "@/ui/*": ["./src/components/ui"]
     }
   },
   "include": ["./src", "./types", "./config"],
