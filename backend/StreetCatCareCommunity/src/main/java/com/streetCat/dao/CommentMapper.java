@@ -19,9 +19,5 @@ public interface CommentMapper {
                                              @Param("targetId")   String targetId,
                                              @Param("parentIds") List<String> parentIds);
 
-    /** 根据 parent_id 批量删除 */
-    void deleteByParentIds(@Param("parentIds") List<String> parentIds);
-
-    /** 单条删除 */
-    void deleteById(@Param("id") String id);
+    void deleteByIds(@Param("ids") List<String> ids);
 }

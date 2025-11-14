@@ -10,6 +10,7 @@ import com.streetCat.vo.response.CommentResp;
 import com.streetCat.vo.response.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,25 +69,11 @@ public class CommentServiceImpl implements CommentService {
 
 
     @Override
-    public void deleteComment(String commentId, String userId, Boolean ifRoot) {
-        // 1. 查询（复用已有接口）
-        Comment comment = commentMapper.selectCommentById(commentId);
-        if (comment == null) {
-            throw new BusinessException("评论不存在");
-        }
-        // 2. 权限校验
-        if (!comment.getAuthor().getId().equals(userId)) {
-            throw new BusinessException("只能删除自己的评论");
-        }
-
-        // 3. 根评论：删整条树
-        if (ifRoot) {
-            commentMapper.deleteByParentIds(Collections.singletonList(commentId));
-            commentMapper.deleteById(commentId);
+    public void deleteComments(List<String> ids, String userId) {
+        if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-
-        // 4. 子评论：只删自己
-        commentMapper.deleteById(commentId);
+        // TODO: 后续补充存在性与权限校验
+        commentMapper.deleteByIds(ids);
     }
 }

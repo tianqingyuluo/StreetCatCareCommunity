@@ -5,6 +5,8 @@ import com.streetCat.vo.request.CreateCommentRequest;
 import com.streetCat.vo.response.CommentResp;
 import com.streetCat.vo.response.PageResponse;
 
+import java.util.List;
+
 public interface CommentService {
 
     /**
@@ -17,10 +19,7 @@ public interface CommentService {
      */
     PageResponse<CommentResp> listComments(String targetType, String targetId);
 
-    /**
-     * 删除评论
-     */
-    void deleteComment(String commentId, String userId  ,Boolean ifRoot);
 
 
+    void deleteComments(List<String> ids, String userId);
 }

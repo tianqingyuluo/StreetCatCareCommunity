@@ -111,4 +111,12 @@
         </foreach>
         ORDER BY c.created_at
     </select>
+    <delete id="deleteByIds">
+        DELETE
+        FROM comments
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>
