@@ -20,7 +20,7 @@ public interface CommentService {
     /**
      * 删除评论
      */
-    void deleteComment(String commentId, String userId);
+    void deleteComment(String commentId, String userId  ,Boolean ifRoot);
 
 
 }

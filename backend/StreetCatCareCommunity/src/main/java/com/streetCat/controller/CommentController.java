@@ -77,6 +77,7 @@ public class CommentController {
     @Operation(summary = "删除评论")
     public ResponseEntity<String> deleteComment(
             @RequestHeader("Authorization") String token,
+            @RequestBody Boolean ifRoot,
             @PathVariable String id) {
 
         if (token == null || !token.startsWith("Bearer ")) {
@@ -84,7 +85,7 @@ public class CommentController {
         }
 
         String userId = JwtUtil.parse(token.replace("Bearer ", ""));
-        commentService.deleteComment(id, userId);
+        commentService.deleteComment(id, userId, ifRoot);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("删除成功");
     }
 }
