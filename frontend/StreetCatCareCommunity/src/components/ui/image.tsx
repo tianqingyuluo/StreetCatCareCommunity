@@ -11,7 +11,6 @@ export function ImageWithFallback(props: ImageProps) {
     setDidError(true)
   }
 
-  // 从 props 中剔除不存在的 alt 属性
   const { src, style, className, ...rest } = props
 
   return didError ? (
@@ -20,7 +19,6 @@ export function ImageWithFallback(props: ImageProps) {
       style={style}
     >
       <View className="flex items-center justify-center w-full h-full">
-        {/* 小程序 Image 无需 alt，错误图标本身已表达含义 */}
         <Image 
           src={ERROR_IMG_SRC} 
           {...rest} 

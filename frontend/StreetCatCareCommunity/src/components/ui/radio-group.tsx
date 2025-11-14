@@ -1,22 +1,18 @@
-// src/components/RadioGroup/index.tsx
 import * as React from "react";
 import { Radio, RadioGroup as TaroRadioGroup } from "@tarojs/components";
-import { cn } from "./utils"; // 确保你的 cn 工具函数路径正确
+import { cn } from "./utils";
 
-// 创建一个Context来传递RadioGroup的value
 const RadioGroupContext = React.createContext<{
   value?: string;
   onChange?: (e: any) => void;
 }>({});
 
-// RadioGroup 组件属性类型，基于 Taro 的 RadioGroupProps
 type RadioGroupProps = React.ComponentProps<typeof TaroRadioGroup> & {
   className?: string;
   value?: string;
   onChange?: (e: any) => void;
 };
 
-// RadioGroupItem 组件属性类型，基于 Taro 的 RadioProps
 type RadioGroupItemProps = React.ComponentProps<typeof Radio> & {
   className?: string;
   value: string | number;
@@ -31,7 +27,7 @@ function RadioGroup({ className, children, value, onChange, ...props }: RadioGro
   return (
     <RadioGroupContext.Provider value={{ value, onChange }}>
       <TaroRadioGroup
-        className={cn("flex flex-col gap-3", className)} // 使用 flex 布局模拟 grid gap
+        className={cn("flex flex-col gap-3", className)}
         onChange={onChange}
         {...props}
       >
