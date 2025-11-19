@@ -2,7 +2,6 @@ package com.streetCat.dao;
 
 import com.streetCat.pojo.Cat;
 import com.streetCat.vo.request.CatSaveRequest;
-import com.streetCat.vo.response.CatResponse;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

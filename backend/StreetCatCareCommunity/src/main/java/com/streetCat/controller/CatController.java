@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streetCat.pojo.Cat;
 import com.streetCat.service.CatService;
 import com.streetCat.utils.BusinessException;
-import com.streetCat.utils.JwtUtil;
 import com.streetCat.vo.request.CatSaveRequest;
 import com.streetCat.vo.response.CatResponse;
 import com.streetCat.vo.response.PageResponse;

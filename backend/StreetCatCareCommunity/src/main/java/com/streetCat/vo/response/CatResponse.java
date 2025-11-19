@@ -1,6 +1,5 @@
 package com.streetCat.vo.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streetCat.pojo.Cat; // 假设你的 Cat 实体类路径是 com.streetCat.pojo.Cat
@@ -57,7 +56,8 @@ public class CatResponse {
         if (cat.getPhotos() != null) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
-                this.photos = objectMapper.readValue(cat.getPhotos(), new TypeReference<List<String>>() {});
+                this.photos = objectMapper.readValue(cat.getPhotos(), new TypeReference<>() {
+                });
             } catch (Exception e) {
                 this.photos = new ArrayList<>();
             }
