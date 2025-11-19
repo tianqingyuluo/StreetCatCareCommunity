@@ -17,7 +17,7 @@ public class PostResponse {
     private String content;
     private String authorId;
     private String postType;
-    private List<String> images; // 直接使用List类型
+    private List<String> images;
     private Boolean isTop;
     private Boolean isElite;
     private String mark;
