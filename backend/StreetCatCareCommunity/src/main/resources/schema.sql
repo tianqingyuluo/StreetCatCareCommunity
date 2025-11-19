@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS feeding_records (
                                                user_id BIGINT NOT NULL COMMENT '投喂用户ID',
                                                feeding_time DATETIME NOT NULL COMMENT '投喂时间',
                                                food_type VARCHAR(100) COMMENT '食物类型',
-    food_amount VARCHAR(50) COMMENT '食物分量',
+    food_amount INTEGER null comment '食物分量',
     notes TEXT COMMENT '备注信息',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_cat_user_time (cat_id, user_id, feeding_time),
