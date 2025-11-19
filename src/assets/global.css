@@ -1,0 +1,9 @@
+/* 全局样式，作用于整个页面 */
+html, body {
+  margin: 0; /* 清除默认边距，避免内容被挤出视口 */
+  padding: 0; /* 清除默认内边距 */
+  height: 100%; /* 让 html/body 占满屏幕高度，确保子容器高度生效 */
+  overflow: hidden; /* 强制隐藏页面滚动条，彻底禁止上下拉动 */
+  box-sizing: border-box; /* 确保内边距和边框包含在元素的总宽度和高度内 */
+  display: block; /* 确保 body 元素以块级元素的形式正确渲染 */
+}
