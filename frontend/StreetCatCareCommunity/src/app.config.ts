@@ -2,10 +2,12 @@ export default defineAppConfig({
   pages: [
     'pages/login/login',
     'pages/index/index',
+    'pages/shelters/shelters',
+    'pages/shelterDetails/shelterDetails',
     'pages/cats/cats',
+    'pages/catDetails/catDetails',
     'pages/community/community',
     'pages/user/user',
-    'pages/catDetails/catDetails'
   ],
   tabBar: {
     selectedColor: "#ff8c42",
@@ -17,10 +19,10 @@ export default defineAppConfig({
         "selectedIconPath": "assets/icons/home-active.png"
       },
       {
-        "pagePath": "pages/cats/cats",
-        "text": "猫咪",
-        "iconPath": "assets/icons/cats.png",
-        "selectedIconPath": "assets/icons/cats-active.png"
+        "pagePath": "pages/shelters/shelters",
+        "text": "救助站",
+        "iconPath": "assets/icons/shelters.png",
+        "selectedIconPath": "assets/icons/shelters-active.png"
       },
       {
         "pagePath": "pages/community/community",

@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { FontAwesome } from 'taro-icons'
 import { useNavigationStore } from '@/stores/navigationStore'
 import { tabRoutes } from '@/utils/navRouteMap'
+import { login as apiLogin } from '@/api/loginService'
+import { loginRequest, loginResponse } from '@/apiTypes/apiTypes'
 
 import Taro from '@tarojs/taro'
 import './login.scss'
@@ -29,6 +31,14 @@ export default function Index () {
   const login = () => Taro.login({
     success: function (res) {
       setCode(res.code || '')
+      
+      const loginData: loginRequest = {
+        code: res.code || ''
+      }
+      apiLogin(loginData).then((res: loginResponse) => {
+        console.log(res)
+      })
+      
       console.log('登录成功！' + res.code)
       reLaunch({ url: '/pages/index/index' })
     }

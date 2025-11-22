@@ -46,6 +46,7 @@
   "author": "",
   "dependencies": {
     "@babel/runtime": "^7.24.4",
+    "@taro-platform/axios-taro-adapter": "1.0.0-alpha.3",
     "@tarojs/components": "4.1.7",
     "@tarojs/helper": "4.1.7",
     "@tarojs/plugin-framework-react": "4.1.7",
@@ -61,7 +62,7 @@
     "@tarojs/runtime": "4.1.7",
     "@tarojs/shared": "4.1.7",
     "@tarojs/taro": "4.1.7",
-    "axios": "^1.12.2",
+    "axios-miniprogram": "^2.7.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "react": "^18.0.0",
