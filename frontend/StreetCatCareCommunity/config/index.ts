@@ -22,7 +22,8 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
     sourceRoot: 'src',
     outputRoot: `dist/${process.env.TARO_ENV}`,
     plugins: [
-      "@tarojs/plugin-generator"
+      "@tarojs/plugin-generator",
+      "@taro-platform/axios-taro-adapter/taro-plugin"
     ],
     defineConstants: {
     },
@@ -37,6 +38,8 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       '@/services': path.resolve(__dirname, '..', 'src/services'),
       '@/stores': path.resolve(__dirname, '..', 'src/stores'),
       '@/utils': path.resolve(__dirname, '..', 'src/utils'),
+      '@/api': path.resolve(__dirname, '..', 'src/services/api'),
+      '@/apiTypes': path.resolve(__dirname, '..', 'src/services/types'),
     },
     framework: 'react',
     compiler: {

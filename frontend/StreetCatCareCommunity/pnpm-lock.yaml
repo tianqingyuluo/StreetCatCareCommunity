@@ -11,6 +11,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.4
         version: 7.28.4
+      '@taro-platform/axios-taro-adapter':
+        specifier: 1.0.0-alpha.3
+        version: 1.0.0-alpha.3(axios@1.13.2)
       '@tarojs/components':
         specifier: 4.1.7
         version: 4.1.7(@tarojs/helper@4.1.7)(@types/react@18.3.26)(postcss@8.5.6)(rollup@3.29.5)(vue@3.5.22(typescript@5.9.3))
@@ -56,9 +59,9 @@ importers:
       '@tarojs/taro':
         specifier: 4.1.7
         version: 4.1.7(@tarojs/components@4.1.7(@tarojs/helper@4.1.7)(@types/react@18.3.26)(postcss@8.5.6)(rollup@3.29.5)(vue@3.5.22(typescript@5.9.3)))(@tarojs/helper@4.1.7)(@tarojs/shared@4.1.7)(@types/react@18.3.26)(postcss@8.5.6)(rollup@3.29.5)(vue@3.5.22(typescript@5.9.3))
-      axios:
-        specifier: ^1.12.2
-        version: 1.12.2
+      axios-miniprogram:
+        specifier: ^2.7.2
+        version: 2.7.2
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1833,6 +1836,11 @@ packages:
   '@tailwindcss/node@4.1.15':
     resolution: {integrity: sha512-HF4+7QxATZWY3Jr8OlZrBSXmwT3Watj0OogeDvdUY/ByXJHQ+LBtqA2brDb3sBxYslIFx6UP94BJ4X6a4L9Bmw==}
 
+  '@taro-platform/axios-taro-adapter@1.0.0-alpha.3':
+    resolution: {integrity: sha512-+9q9RucTf5FjvXBQaDsFpu6W26j6OVDPYgpmz3gffC2nPgvhm//mXsG7+/lomAjbNRr6zxDAc8OJu9/nmP63jQ==}
+    peerDependencies:
+      axios: ^1.2.0
+
   '@tarojs/api@4.1.7':
     resolution: {integrity: sha512-ql4joiX7itrNnsCZkRf0rW7uZwbajNMsl/wezD6+JWdkQeQFRUZoT+8zmgQiEuNFQRg0WjkjIn//yoj9qBMigQ==}
     engines: {node: '>= 18'}
@@ -2531,8 +2539,11 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  axios@1.12.2:
-    resolution: {integrity: sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==}
+  axios-miniprogram@2.7.2:
+    resolution: {integrity: sha512-XC4ZNA9siLj5s6WIRylO5aXTdVPuIOjYfY9ml3MHa7haAdPeEjsa2bnIZLQ3PB/8XvK43inUQ31CZrJZI5yMPg==}
+
+  axios@1.13.2:
+    resolution: {integrity: sha512-VPk9ebNqPcy5lRGuSlKx752IlDatOjT9paPlm8A7yOuW2Fbvp4X3JznJtT4f0GzGLLiWE9W8onz51SqLYwzGaA==}
 
   babel-plugin-const-enum@1.2.0:
     resolution: {integrity: sha512-o1m/6iyyFnp9MRsK1dHF3bneqyf3AlM2q3A/YbgQr2pCat6B6XJVDv2TXqzfY2RYUi4mak6WAksSBPlyYGx9dg==}
@@ -7677,6 +7688,10 @@ snapshots:
       source-map-js: 1.2.1
       tailwindcss: 4.1.15
 
+  '@taro-platform/axios-taro-adapter@1.0.0-alpha.3(axios@1.13.2)':
+    dependencies:
+      axios: 1.13.2
+
   '@tarojs/api@4.1.7(@tarojs/runtime@4.1.7)(@tarojs/shared@4.1.7)':
     dependencies:
       '@tarojs/runtime': 4.1.7
@@ -7711,7 +7726,7 @@ snapshots:
       '@tarojs/service': 4.1.7
       '@tarojs/shared': 4.1.7
       adm-zip: 0.5.16
-      axios: 1.12.2
+      axios: 1.13.2
       cli-highlight: 2.1.11
       download-git-repo: 3.0.2
       envinfo: 7.19.0
@@ -7973,7 +7988,7 @@ snapshots:
       '@tarojs/service': 4.1.7
       '@tarojs/shared': 4.1.7
       '@tarojs/taro-h5': 4.1.7(@tarojs/components@4.1.7(@tarojs/helper@4.1.7)(@types/react@18.3.26)(postcss@8.5.6)(rollup@3.29.5)(vue@3.5.22(typescript@5.9.3)))(@tarojs/taro@4.1.7(@tarojs/components@4.1.7(@tarojs/helper@4.1.7)(@types/react@18.3.26)(postcss@8.5.6)(rollup@3.29.5)(vue@3.5.22(typescript@5.9.3)))(@tarojs/helper@4.1.7)(@tarojs/shared@4.1.7)(@types/react@18.3.26)(postcss@8.5.6)(rollup@3.29.5)(vue@3.5.22(typescript@5.9.3)))
-      axios: 1.12.2
+      axios: 1.13.2
       babel-plugin-transform-taroapi: 4.1.7(@babel/core@7.28.4)
       base64-js: 1.5.1
       change-case: 4.1.2
@@ -8612,7 +8627,9 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
-  axios@1.12.2:
+  axios-miniprogram@2.7.2: {}
+
+  axios@1.13.2:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.4
