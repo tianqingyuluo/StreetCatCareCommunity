@@ -7,6 +7,7 @@ export default defineAppConfig({
     'pages/cats/cats',
     'pages/catDetails/catDetails',
     'pages/community/community',
+    'pages/postDetails/postDetails',
     'pages/user/user',
   ],
   tabBar: {
