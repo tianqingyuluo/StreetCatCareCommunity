@@ -257,13 +257,13 @@ public class RedisCountUtil {
                 // 解析key获取目标类型和ID
                 String[] parts = key.split(":");
                 if (parts.length >= 3) {
-                    String targetType = parts[1]; // CAT 或 POST
+                    String targetType = parts[1]; // Cat 或 POST
                     Long targetId = Long.parseLong(parts[2]);
 
                     // 获取计数值
                     Object countObj = redisTemplate.opsForValue().get(key);
                     if (countObj != null) {
-                        Integer count = Integer.parseInt(countObj.toString());
+                        int count = Integer.parseInt(countObj.toString());
 
                         if (count > 0) {
                             // 同步到数据库（假设mapper方法已存在）

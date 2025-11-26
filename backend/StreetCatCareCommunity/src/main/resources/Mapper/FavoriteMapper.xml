@@ -40,6 +40,8 @@
         p.content as p_content,
         p.post_type as p_post_type,
         p.author_id as p_author_id,
+        u.avatar_url as p_author_avatar_url, <!-- 作者头像 URL -->
+        u.nickname as p_author_nickname,    <!-- 作者昵称 -->
         p.like_count as p_like_count,
         p.comment_count as p_comment_count,
         p.view_count as p_view_count,
@@ -70,54 +72,54 @@
         c.updated_at as c_updated_at
         FROM user_favorites uf
         LEFT JOIN community_posts p ON uf.target_type = 'POST' AND uf.target_id = p.id
+        LEFT JOIN users u ON p.author_id = u.id <!-- 连接 users 表 -->
         LEFT JOIN stray_cats c ON uf.target_type = 'CAT' AND uf.target_id = c.id
         WHERE uf.user_id = #{userId}
         ORDER BY uf.created_at DESC
     </select>
 
+    <!-- 定义结果映射 -->
     <resultMap id="FavoriteDetailResultMap" type="com.streetCat.vo.response.FavoriteDetailResponse">
         <result property="targetType" column="target_type"/>
         <result property="targetId" column="target_id"/>
         <result property="createdAt" column="created_at"/>
 
-        <!-- 帖子信息关联 -->
-        <association property="post" javaType="com.streetCat.vo.response.FavoriteDetailResponse$PostInfo">
-            <id property="id" column="p_id"/>
-            <result property="title" column="p_title"/>
-            <result property="content" column="p_content"/>
-            <result property="postType" column="p_post_type"/>
-            <result property="authorId" column="p_author_id"/>
-            <result property="likeCount" column="p_like_count"/>
-            <result property="commentCount" column="p_comment_count"/>
-            <result property="viewCount" column="p_view_count"/>
-            <result property="images" column="p_images"/>
-            <result property="status" column="p_status"/>
-            <result property="createdAt" column="p_created_at"/>
-            <result property="mark" column="p_mark"/>
-            <result property="favoriteCount" column="p_favorite_count"/>
-        </association>
+        <!-- 帖子字段 -->
+        <result property="postId" column="p_id"/>
+        <result property="postTitle" column="p_title"/>
+        <result property="postContent" column="p_content"/>
+        <result property="postType" column="p_post_type"/>
+        <result property="postAuthorId" column="p_author_id"/>
+        <result property="postAuthorAvatarUrl" column="p_author_avatar_url"/> <!-- 映射作者头像 URL -->
+        <result property="postAuthorNickname" column="p_author_nickname"/> <!-- 映射作者昵称 -->
+        <result property="postLikeCount" column="p_like_count"/>
+        <result property="postCommentCount" column="p_comment_count"/>
+        <result property="postViewCount" column="p_view_count"/>
+        <result property="postImages" column="p_images"/>
+        <result property="postStatus" column="p_status"/>
+        <result property="postCreatedAt" column="p_created_at"/>
+        <result property="postMark" column="p_mark"/>
+        <result property="postFavoriteCount" column="p_favorite_count"/>
 
-        <!-- 猫咪信息关联 -->
-        <association property="cat" javaType="com.streetCat.vo.response.FavoriteDetailResponse$CatInfo">
-            <id property="id" column="c_id"/>
-            <result property="name" column="c_name"/>
-            <result property="breed" column="c_breed"/>
-            <result property="gender" column="c_gender"/>
-            <result property="ageMonths" column="c_age_months"/>
-            <result property="healthStatus" column="c_health_status"/>
-            <result property="description" column="c_description"/>
-            <result property="photos" column="c_photos"/>
-            <result property="isNeutered" column="c_is_neutered"/>
-            <result property="vaccinationStatus" column="c_vaccination_status"/>
-            <result property="status" column="c_status"/>
-            <result property="shelterId" column="c_shelter_id"/>
-            <result property="createdBy" column="c_created_by"/>
-            <result property="likeCount" column="c_like_count"/>
-            <result property="commentCount" column="c_comment_count"/>
-            <result property="viewCount" column="c_view_count"/>
-            <result property="favoriteCount" column="c_favorite_count"/>
-            <result property="createdAt" column="c_created_at"/>
-            <result property="updatedAt" column="c_updated_at"/>
-        </association>
+        <!-- 猫咪字段 -->
+        <result property="catId" column="c_id"/>
+        <result property="catName" column="c_name"/>
+        <result property="catBreed" column="c_breed"/>
+        <result property="catGender" column="c_gender"/>
+        <result property="catAgeMonths" column="c_age_months"/>
+        <result property="catHealthStatus" column="c_health_status"/>
+        <result property="catDescription" column="c_description"/>
+        <result property="catPhotos" column="c_photos"/>
+        <result property="catIsNeutered" column="c_is_neutered"/>
+        <result property="catVaccinationStatus" column="c_vaccination_status"/>
+        <result property="catStatus" column="c_status"/>
+        <result property="catShelterId" column="c_shelter_id"/>
+        <result property="catCreatedBy" column="c_created_by"/>
+        <result property="catLikeCount" column="c_like_count"/>
+        <result property="catCommentCount" column="c_comment_count"/>
+        <result property="catViewCount" column="c_view_count"/>
+        <result property="catFavoriteCount" column="c_favorite_count"/>
+        <result property="catCreatedAt" column="c_created_at"/>
+        <result property="catUpdatedAt" column="c_updated_at"/>
     </resultMap>
 </mapper>

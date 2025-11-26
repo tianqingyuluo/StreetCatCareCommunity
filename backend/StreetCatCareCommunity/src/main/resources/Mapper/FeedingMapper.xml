@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.streetCat.dao.FeedingMapper">
+
+    <!-- 新建投喂 -->
+    <insert id="insertFeeding">
+        INSERT INTO feeding_records
+        (id, cat_id, shelter_id, user_id, feeding_time,
+         food_type, food_amount, notes,
+         created_at)
+        VALUES
+            (#{id},
+             #{feeding.catId},
+             #{feeding.shelterId},
+             #{feeding.userId},
+             #{feeding.feedingTime},
+             #{feeding.foodType},
+             #{feeding.foodAmount},
+             #{feeding.notes},
+             NOW())
+    </insert>
+    <select id="selectFeedingById" resultType="com.streetCat.pojo.Feeding">
+        SELECT *
+        FROM feeding_records
+        WHERE id = #{id}
+    </select>
+
+    <select id="listFeedings" resultType="com.streetCat.pojo.Feeding">
+        SELECT *
+        FROM feeding_records
+        <where>
+            <if test="catId != null">AND cat_id = #{catId}</if>
+            <if test="userId != null">AND user_id = #{userId}</if>
+            <if test="shelterId != null">AND shelter_id = #{shelterId}</if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+    <select id="statList" resultType="com.streetCat.pojo.Feeding">
+        SELECT *
+        FROM feeding_records
+        <where>
+            <if test="catId != null">AND cat_id = #{catId}</if>
+            <!-- 同时判空字符串 -->
+            <if test="start != null and start != '' and end != null and end != ''">
+                AND DATE(feeding_time) BETWEEN #{start} AND #{end}
+            </if>
+        </where>
+        ORDER BY feeding_time DESC
+    </select>
+
+</mapper>

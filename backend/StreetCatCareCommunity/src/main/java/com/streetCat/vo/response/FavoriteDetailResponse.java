@@ -1,5 +1,7 @@
 package com.streetCat.vo.response;
 
+import com.streetCat.pojo.Cat;
+import com.streetCat.pojo.PostWithUser;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -8,46 +10,43 @@ public class FavoriteDetailResponse {
     private String targetType;
     private Long targetId;
     private LocalDateTime createdAt;
-    private PostInfo post;
-    private CatInfo cat;
 
-    @Data
-    public static class PostInfo {
-        private Long id;
-        private String title;
-        private String content;
-        private String postType;
-        private String images;
-        private Long authorId;
-        private Integer likeCount;
-        private Integer commentCount;
-        private Integer viewCount;
-        private String status;
-        private LocalDateTime createdAt;
-        private String mark;
-        private Integer favoriteCount;
-    }
+    // 帖子相关字段
+    private Long postId;
+    private String postTitle;
+    private String postContent;
+    private String postType;
+    private Long postAuthorId;
+    private Integer postLikeCount;
+    private Integer postCommentCount;
+    private Integer postViewCount;
+    private String postImages; // 帖子图片，存储为字符串
+    private String postStatus;
+    private LocalDateTime postCreatedAt;
+    private String postMark;
+    private Integer postFavoriteCount;
 
-    @Data
-    public static class CatInfo {
-        private Long id;
-        private String name;
-        private String breed;
-        private String gender;
-        private Integer ageMonths;
-        private String healthStatus;
-        private String description;
-        private String photos;
-        private Boolean isNeutered;
-        private String vaccinationStatus;
-        private String status;
-        private Long shelterId;
-        private Long createdBy;
-        private Integer likeCount;
-        private Integer commentCount;
-        private Integer viewCount;
-        private Integer favoriteCount;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
-    }
+    private String postAuthorAvatarUrl;
+    private String postAuthorNickname;
+
+    // 猫咪相关字段
+    private Long catId;
+    private String catName;
+    private String catBreed;
+    private String catGender;
+    private Integer catAgeMonths;
+    private String catHealthStatus;
+    private String catDescription;
+    private String catPhotos; // 猫咪图片，存储为字符串
+    private Boolean catIsNeutered;
+    private String catVaccinationStatus;
+    private String catStatus;
+    private Long catShelterId;
+    private Long catCreatedBy;
+    private Integer catLikeCount;
+    private Integer catCommentCount;
+    private Integer catViewCount;
+    private Integer catFavoriteCount;
+    private LocalDateTime catCreatedAt;
+    private LocalDateTime catUpdatedAt;
 }

@@ -18,4 +18,6 @@ public interface CommentMapper {
     List<Comment> listChildComment(@Param("targetType") String targetType,
                                              @Param("targetId")   String targetId,
                                              @Param("parentIds") List<String> parentIds);
+
+    void deleteByIds(@Param("ids") List<String> ids);
 }

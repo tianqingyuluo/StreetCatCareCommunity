@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.streetCat.dao.MainCatMapper">
+
+    <!-- 1. 插入：把 CatSaveRequest 所有字段落库 -->
+    <insert id="insertCat" useGeneratedKeys="false" keyProperty="id">
+        INSERT INTO stray_cats (
+        id, name, breed, gender, age_months,
+        health_status, description, photos,
+        is_neutered, vaccination_status, status,
+        shelter_id, created_by,
+        like_count, comment_count, view_count, favorite_count,
+        created_at, updated_at
+        ) VALUES (
+        #{id},
+        #{req.name},
+        #{req.breed},
+        #{req.gender},
+        #{req.ageMonths},
+        #{req.healthStatus},
+        #{req.description},
+        #{req.photos},
+        #{req.isNeutered},
+        #{req.vaccinationStatus},
+        #{req.status},
+        #{req.shelterId},
+        #{req.createdBy},
+        0, 0, 0, 0,
+        NOW(), NOW()
+        )
+    </insert>
+    <resultMap id="CatMap" type="com.streetCat.pojo.Cat">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="breed" column="breed"/>
+        <result property="gender" column="gender"/>
+        <result property="ageMonths" column="age_months"/>
+        <result property="healthStatus" column="health_status"/>
+        <result property="description" column="description"/>
+        <result property="photos" column="photos"/>
+        <result property="isNeutered" column="is_neutered"/>
+        <result property="vaccinationStatus" column="vaccination_status"/>
+        <result property="status" column="status"/>
+        <result property="shelterId" column="shelter_id"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="like" column="like_count"/>
+        <result property="comment" column="comment_count"/>
+        <result property="view" column="view_count"/>
+        <result property="favorite" column="favorite_count"/>
+    </resultMap>
+
+    <select id="selectCatById" resultMap="CatMap">
+        SELECT * FROM stray_cats WHERE id = #{id}
+    </select>
+
+
+    <!-- 分页查询 -->
+    <select id="listCats" resultMap="CatMap">
+        SELECT *
+        FROM stray_cats
+        <if test="shelterId != null and shelterId !=''">
+            WHERE shelter_id = #{shelterId}
+        </if>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 计数 -->
+    <select id="countCats" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM stray_cats
+        <if test="shelterId != null and shelterId !=''">
+            WHERE shelter_id = #{shelterId}
+        </if>
+    </select>
+    <update id="updateCatById">
+        UPDATE stray_cats
+        <set>
+            <if test="req.name != null">name = #{req.name},</if>
+            <if test="req.breed != null">breed = #{req.breed},</if>
+            <if test="req.gender != null">gender = #{req.gender},</if>
+            <if test="req.ageMonths != null">age_months = #{req.ageMonths},</if>
+            <if test="req.healthStatus != null">health_status = #{req.healthStatus},</if>
+            <if test="req.description != null">description = #{req.description},</if>
+            <if test="req.photos != null">photos = #{req.photos},</if>
+            <if test="req.isNeutered != null">is_neutered = #{req.isNeutered},</if>
+            <if test="req.vaccinationStatus != null">vaccination_status = #{req.vaccinationStatus},</if>
+            <if test="req.status != null">status = #{req.status},</if>
+            <if test="req.shelterId != null">shelter_id = #{req.shelterId},</if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteCatById">
+        DELETE FROM stray_cats WHERE id = #{id}
+    </delete>
+    <update id="updateCatStatus">
+        UPDATE stray_cats
+        SET status = #{status},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+</mapper>

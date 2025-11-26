@@ -3,12 +3,14 @@ package com.streetCat.service.impl;
 import com.streetCat.dao.CommentMapper;
 import com.streetCat.pojo.Comment;
 import com.streetCat.service.CommentService;
+import com.streetCat.utils.BusinessException;
 import com.streetCat.utils.RandomUtil;
 import com.streetCat.vo.request.CreateCommentRequest;
 import com.streetCat.vo.response.CommentResp;
 import com.streetCat.vo.response.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -67,7 +69,11 @@ public class CommentServiceImpl implements CommentService {
 
 
     @Override
-    public void deleteComment(String commentId, String userId) {
-
+    public void deleteComments(List<String> ids, String userId) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        // TODO: 后续补充存在性与权限校验
+        commentMapper.deleteByIds(ids);
     }
 }
