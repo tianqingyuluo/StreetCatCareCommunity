@@ -8,6 +8,7 @@ import com.streetCat.vo.response.FavoriteDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +47,15 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Override
     public List<FavoriteDetailResponse> getAllFavorites(String userId) {
         Long userIdLong = Long.valueOf(userId);
-        return favoriteMapper.getAllFavorites(userIdLong);
+        List<FavoriteDetailResponse> favoriteDetailResponse = Collections.singletonList(new FavoriteDetailResponse());
+        try {
+             favoriteDetailResponse = favoriteMapper.getAllFavorites(userIdLong);
+        }
+        catch (Exception e) {
+            System.out.println(e);
+            System.err.println(e.getMessage());
+        }
+        return favoriteDetailResponse;
     }
 
     @Override

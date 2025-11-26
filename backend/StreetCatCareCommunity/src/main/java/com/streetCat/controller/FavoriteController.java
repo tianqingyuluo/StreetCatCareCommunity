@@ -110,7 +110,7 @@ public class FavoriteController {
         } catch (Exception e) {
             Map<String, Object> result = new HashMap<>();
             result.put("success", false);
-            result.put("message", "系统错误，请稍后重试");
+            result.put("message",e.getMessage());
             return ResponseEntity.status(500).body(result);
         }
     }
