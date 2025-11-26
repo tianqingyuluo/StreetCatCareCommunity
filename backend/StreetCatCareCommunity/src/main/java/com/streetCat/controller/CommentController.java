@@ -1,6 +1,7 @@
 package com.streetCat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.streetCat.dao.MainCatMapper;
 import com.streetCat.dao.PostMapper;
 import com.streetCat.pojo.Comment;
 import com.streetCat.service.CommentService;
@@ -28,6 +29,7 @@ public class CommentController {
 
     private final CommentService commentService;
     private final PostMapper postMapper;
+    private final MainCatMapper catMapper;
 
     @PostMapping
     @Operation(summary = "发布评论")
@@ -63,8 +65,8 @@ public class CommentController {
                     throw new BusinessException("帖子不存在");
             }
             else {
-                //todo:猫咪写完后补充是否有猫帖子的判定
-                throw new BusinessException("猫咪帖不存在");
+                if (catMapper.selectCatById(Long.valueOf(createCommentRequest.getTargetId())) == null)
+                    throw new BusinessException("猫咪帖不存在");
             }
             Comment response = commentService.createComment(userId, createCommentRequest);
             CommentResp res = new CommentResp(response);

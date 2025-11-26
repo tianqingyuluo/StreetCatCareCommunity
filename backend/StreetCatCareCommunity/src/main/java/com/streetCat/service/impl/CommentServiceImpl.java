@@ -23,7 +23,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     @Override
     public Comment createComment(String userId, CreateCommentRequest request) {
-        if (request.getParentId() != null && request.getParentId().isEmpty()) {
+        if (request.getParentId().isEmpty()) {
             request.setParentId(null);
         }
         String id = String.valueOf(RandomUtil.nextId());
