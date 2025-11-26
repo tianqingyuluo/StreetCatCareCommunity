@@ -43,10 +43,10 @@ public class FavoriteDetailResponse {
     private String catStatus;
     private Long catShelterId;
     private Long catCreatedBy;
-    private Integer catLikeCount;
-    private Integer catCommentCount;
-    private Integer catViewCount;
-    private Integer catFavoriteCount;
+    private Long catLikeCount;
+    private Long catCommentCount;
+    private Long catViewCount;
+    private Long catFavoriteCount;
     private LocalDateTime catCreatedAt;
     private LocalDateTime catUpdatedAt;
 }

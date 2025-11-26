@@ -37,5 +37,15 @@ public class GetUserResponse {
 
         @Schema(description = "昵称")
         private String nickname;
+
+        public UserInfo(String postAuthorId, String postAuthorAvatarUrl, String postAuthorNickname) {
+            this.avatarUrl = postAuthorAvatarUrl;
+            this.id = postAuthorId;
+            this.nickname = postAuthorNickname;
+        }
+
+        public UserInfo() {
+
+        }
     }
 }

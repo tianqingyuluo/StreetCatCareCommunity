@@ -65,4 +65,5 @@ public class CatResponse {
             this.photos = new ArrayList<>();
         }
     }
+    public CatResponse() {}
 }
