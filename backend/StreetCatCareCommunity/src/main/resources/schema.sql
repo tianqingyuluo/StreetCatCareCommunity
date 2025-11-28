@@ -187,3 +187,10 @@ CREATE TABLE IF NOT EXISTS sys_admin (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY uk_phone (phone)
     ) COMMENT='系统后台管理员账号';
+CREATE TABLE IF NOT EXISTS likes (
+                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       user_id BIGINT NOT NULL,
+                       target_type VARCHAR(50) NOT NULL, -- 'POST' 或 'CAT'
+                       target_id BIGINT NOT NULL,
+                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

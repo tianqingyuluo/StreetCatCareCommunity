@@ -40,7 +40,7 @@
                      #{userId},
                      #{request.postType},
                      #{request.images},
-                     'PENDING',
+                     #{status},
                      NOW()
                  )
     </insert>

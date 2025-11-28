@@ -27,7 +27,11 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post createNewPost(String userid, CreateNewPostRequest request) {
         Long id = RandomUtil.nextId();
-        int updated = postmapper.insertPost(id,userid,request);
+        String status = "PUBLISHED";
+        if (request.getPostType().equals("HELP")){
+            status = "PENDING";
+        }
+        int updated = postmapper.insertPost(id,userid,status,request);
         if (updated == 0) {
             throw new RuntimeException("更新失败");
         }

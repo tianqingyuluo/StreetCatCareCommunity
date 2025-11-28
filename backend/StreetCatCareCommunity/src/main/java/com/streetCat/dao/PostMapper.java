@@ -16,6 +16,7 @@ public interface PostMapper {
 
     int insertPost(@Param("id")        Long id,
                    @Param("userId")    String userId,
+                   @Param("status")    String status,
                    @Param("request")   CreateNewPostRequest request);
 
     Post getPostById(@Param("id")      Long id);
