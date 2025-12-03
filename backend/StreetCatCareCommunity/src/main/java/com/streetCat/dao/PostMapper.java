@@ -47,4 +47,6 @@ public interface PostMapper {
     void deletePost(@Param("id") String id);
     void updatePostTopStatus(@Param("id") String id, @Param("isTop") Boolean isTop);
     void updatePostEliteStatus(@Param("id") String id, @Param("isElite") Boolean isElite);
+
+    void updateCountField(Long targetId, String fieldName, Integer count);
 }

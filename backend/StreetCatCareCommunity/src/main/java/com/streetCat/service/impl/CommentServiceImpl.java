@@ -5,6 +5,7 @@ import com.streetCat.pojo.Comment;
 import com.streetCat.service.CommentService;
 import com.streetCat.utils.BusinessException;
 import com.streetCat.utils.RandomUtil;
+import com.streetCat.utils.RedisCountUtil;
 import com.streetCat.vo.request.CreateCommentRequest;
 import com.streetCat.vo.response.CommentResp;
 import com.streetCat.vo.response.PageResponse;
@@ -21,12 +22,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
+    private final RedisCountUtil redisCountUtil;
     @Override
     public Comment createComment(String userId, CreateCommentRequest request) {
         if (request.getParentId().isEmpty()) {
             request.setParentId(null);
         }
         String id = String.valueOf(RandomUtil.nextId());
+        redisCountUtil.incrementCommentCount(request.getTargetType(), Long.valueOf(request.getTargetId()));
         commentMapper.insertComment(id, userId, request);
         return commentMapper.selectCommentById(id);
     }

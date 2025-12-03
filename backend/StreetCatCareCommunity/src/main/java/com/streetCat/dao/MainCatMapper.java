@@ -31,4 +31,6 @@ public interface MainCatMapper {
     void deleteCatById(@Param("id") Long id);
     void updateCatStatus(@Param("id") Long id,
                          @Param("status") String status);
+
+    void updateCountField(Long targetId, String fieldName, Integer count);
 }

@@ -104,4 +104,16 @@
             updated_at = NOW()
         WHERE id = #{id}
     </update>
+    <update id="updateCountField">
+        UPDATE stray_cats
+        SET
+        <choose>
+            <when test="fieldName == 'like'">like_count =like_count+ #{count},</when>
+            <when test="fieldName == 'comment'">comment_count =comment_count + #{count},</when>
+            <when test="fieldName == 'view'">view_count =view_count+ #{count},</when>
+            <when test="fieldName == 'collect'">favorite_count =favorite_count+ #{count},</when>
+        </choose>
+        updated_at = NOW()
+        WHERE id = #{targetId}
+    </update>
 </mapper>

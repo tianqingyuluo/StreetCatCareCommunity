@@ -47,6 +47,9 @@ public class Post {
     @Schema(description = "浏览数", example = "0")
     private Integer viewCount;
 
+    @Schema(description = "收藏数" ,example = "0")
+    private Integer favoriteCount;
+
     @Schema(description = "状态", example = "PUBLISHED")
     private String status;
 
