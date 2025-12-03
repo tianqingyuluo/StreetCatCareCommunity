@@ -20,7 +20,7 @@ public interface AdoptionMapper {
             @Param("status") String status
     );
 
-    List<AdoptionResponse> listAdoptions(@Param("catId") Long catId, @Param("shelterId") Long shelterId, @Param("status") String status);
+    List<AdoptionResponse> listAdoptions(@Param("catId") Long catId, @Param("shelterId") Long shelterId, @Param("status") String status,@Param("userid")Long userid);
 
     AdoptionResponse getAdoption(Long id);
 

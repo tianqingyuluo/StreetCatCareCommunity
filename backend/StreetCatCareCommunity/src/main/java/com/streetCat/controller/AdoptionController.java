@@ -34,11 +34,13 @@ public class AdoptionController {
 
     @GetMapping
     public ResponseEntity<List<AdoptionResponse>> listAdoptions(
-            @RequestParam(value = "catId", required = false) Long catId,
-            @RequestParam(value = "shelterId", required = false) Long shelterId,
+            @RequestHeader("Authorization") String token,
+            @RequestParam(value = "catId", required = false) String catId,
+            @RequestParam(value = "shelterId", required = false) String shelterId,
             @RequestParam(value = "status", required = false) String status) {
+        String userId = JwtUtil.parse(token.replace("Bearer ", ""));
         List<AdoptionResponse> adoptionResponses=new ArrayList<>();
-        adoptionResponses =  adoptionService.listAdoptions(catId, shelterId, status);
+        adoptionResponses =  adoptionService.listAdoptions(Long.valueOf(catId), Long.valueOf(shelterId), status, Long.valueOf(userId));
         return ResponseEntity.ok(adoptionResponses);
     }
 

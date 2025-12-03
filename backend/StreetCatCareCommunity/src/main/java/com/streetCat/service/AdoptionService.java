@@ -11,7 +11,7 @@ import java.util.List;
 public interface AdoptionService {
     AdoptionResponse createAdoption(AdoptionRequest content, Long userId);
 
-    List<AdoptionResponse> listAdoptions(Long catId, Long shelterId, String status);
+    List<AdoptionResponse> listAdoptions(Long catId, Long shelterId, String status,Long userId);
 
     AdoptionResponse getAdoption(Long id);
 

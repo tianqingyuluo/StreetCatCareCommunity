@@ -67,9 +67,9 @@
             <version>3.0.3</version>   <!-- 2025-10 最新稳定版 -->
         </dependency>
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>5.8.25</version>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-core</artifactId>
+            <version>3.5.3.2</version>   <!-- 阿里云确认存在 -->
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

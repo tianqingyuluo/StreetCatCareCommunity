@@ -34,6 +34,9 @@
             <if test="status != null and status !='' ">
                 AND status = #{status}
             </if>
+            <if test="userId != null and userId != ''">
+                AND applicant_id = #{userId}
+            </if>
         </where>
         ORDER BY created_at DESC
     </select>

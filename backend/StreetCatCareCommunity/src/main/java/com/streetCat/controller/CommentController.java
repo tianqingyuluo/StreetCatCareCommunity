@@ -93,12 +93,16 @@ public class CommentController {
     public ResponseEntity<String> deleteComments(
             @RequestHeader("Authorization") String token,
             @RequestBody List<String> ids) {
-
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未携带token或token格式错误");
+        try {
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未携带token或token格式错误");
+            }
+            //权限管理在service层
+            String userId = JwtUtil.parse(token.replace("Bearer ", ""));
+            commentService.deleteComments(ids, userId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("删除成功");
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body("删除评论失败:"+e.getMessage());
         }
-        String userId = JwtUtil.parse(token.replace("Bearer ", ""));
-        commentService.deleteComments(ids, userId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("删除成功");
     }
 }

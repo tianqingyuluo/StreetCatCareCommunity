@@ -1,5 +1,6 @@
 package com.streetCat.service.impl;
 
+import com.streetCat.dao.AdminMapper;
 import com.streetCat.dao.CommentMapper;
 import com.streetCat.pojo.Comment;
 import com.streetCat.service.CommentService;
@@ -16,6 +17,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final RedisCountUtil redisCountUtil;
+    private final AdminMapper adminMapper;
     @Override
     public Comment createComment(String userId, CreateCommentRequest request) {
         if (request.getParentId().isEmpty()) {
@@ -76,7 +79,10 @@ public class CommentServiceImpl implements CommentService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        // TODO: 后续补充存在性与权限校验
+        if (!adminMapper.existsById(userId) && (!Objects.equals(commentMapper.selectCommentById(ids.getFirst()).getAuthor().getId(), userId))) {
+            throw new BusinessException("你不是管理员或发布评论的本人，无权删除该评论");
+        }
+        redisCountUtil.decrementCommentCount(userId, Long.valueOf(ids.getFirst()));
         commentMapper.deleteByIds(ids);
     }
 }

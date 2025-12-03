@@ -1,6 +1,4 @@
 package com.streetCat.service.impl;
-
-import cn.hutool.db.PageResult;
 import com.streetCat.dao.PostMapper;
 import com.streetCat.pojo.Post;
 import com.streetCat.pojo.PostWithUser;
@@ -49,11 +47,10 @@ public class PostServiceImpl implements PostService {
         int offset = (page - 1) * size;
 
         // 查询数据
-        PageResult<PostWithUser> records = postmapper.listPosts(keyword, postType, sort, page, size, offset);
+        List<PostWithUser> records = postmapper.listPosts(keyword, postType, sort, page, size, offset);
         List<PostWithUserResponse> responseList = records.stream()
                 .map(PostWithUserResponse::new)
                 .collect(Collectors.toList());
-
         // 查询总数
         Long total = postmapper.countPosts(keyword, postType);
 
@@ -62,9 +59,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void updatePostStatus(String id,String userid, UpdatePostStatusRequest.PostStatus status, String remark) {
-//        if (!postmapper.isSysAdmin(userid)) {
-//            throw new RuntimeException("无权限操作");
-//        }
+        if (!postmapper.isSysAdmin(userid)) {
+            throw new RuntimeException("无权限操作");
+        }
         postmapper.updatePostStatus(id,status,remark);
     }
 

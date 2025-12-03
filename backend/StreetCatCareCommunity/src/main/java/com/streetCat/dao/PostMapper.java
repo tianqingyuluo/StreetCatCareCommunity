@@ -1,10 +1,9 @@
 package com.streetCat.dao;
-
-import cn.hutool.db.PageResult;
 import com.streetCat.pojo.Post;
 import com.streetCat.pojo.PostWithUser;
 import com.streetCat.vo.request.CreateNewPostRequest;
 import com.streetCat.vo.request.UpdatePostStatusRequest;
+import com.streetCat.vo.response.PageResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -23,7 +22,7 @@ public interface PostMapper {
 
     ArrayList<Post> findPendingPosts();
 
-    PageResult<PostWithUser> listPosts(
+    List<PostWithUser> listPosts(
             @Param("keyword") String keyword,
             @Param("postType") String postType,
             @Param("sort") String sort,

@@ -1,5 +1,6 @@
 package com.streetCat.service.impl;
 
+import com.streetCat.dao.AdminMapper;
 import com.streetCat.dao.AdoptionMapper;
 import com.streetCat.dao.MainCatMapper;
 import com.streetCat.pojo.Cat;
@@ -22,6 +23,8 @@ public class AdoptionServiceImpl implements AdoptionService {
     private AdoptionMapper adoptionMapper;
     @Autowired
     private MainCatMapper mainCatMapper;
+    @Autowired
+    private AdminMapper adminMapper;
     @Override
     public AdoptionResponse createAdoption(AdoptionRequest content, Long userId) {
         long catId;
@@ -31,7 +34,7 @@ public class AdoptionServiceImpl implements AdoptionService {
             throw new BusinessException("catId格式不正确，无法转换为数字");
         }
         List<AdoptionResponse> adoptionResponse =new ArrayList<>();
-        adoptionResponse = adoptionMapper.listAdoptions(catId,null,null);
+        adoptionResponse = adoptionMapper.listAdoptions(catId,null,null,null);
         if (adoptionResponse!=null && !adoptionResponse.isEmpty()) {
             throw new BusinessException("这个猫正在被别人申请领养中");
         }
@@ -46,9 +49,12 @@ public class AdoptionServiceImpl implements AdoptionService {
     }
 
     @Override
-    public List<AdoptionResponse> listAdoptions(Long catId, Long shelterId, String status) {
+    public List<AdoptionResponse> listAdoptions(Long catId, Long shelterId, String status,Long userId) {
         // 实现逻辑：查询领养申请列表
-        return adoptionMapper.listAdoptions(catId, shelterId, status);
+        if (adminMapper.existsById(String.valueOf(userId))){
+            return adoptionMapper.listAdoptions(catId, shelterId, status,null);
+        }
+        return adoptionMapper.listAdoptions(catId, shelterId, status,userId);
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -20,11 +21,23 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     @Override
     public void addFavorite(String type, String userId, String targetId) {
-        if (!redisCountUtil.incrementCollectCount(type, Long.valueOf(targetId), Long.valueOf(userId))) {
-            throw new BusinessException("已经收藏过该" + ("CAT".equals(type) ? "猫咪" : "帖子"));
+        if (Objects.equals(type, "POST")){
+            List<Long> favoritePostIds = favoriteMapper.getFavoritePostIds(Long.valueOf(userId));
+            if (favoritePostIds.contains(Long.valueOf(targetId))) {
+                throw new BusinessException("已经收藏过该帖子");
+            }
+        }
+        if (Objects.equals(type, "CAT")){
+            List<Long> favoriteCATIds = favoriteMapper.getFavoriteCatIds(Long.valueOf(userId));
+            if (favoriteCATIds.contains(Long.valueOf(targetId))) {
+                throw new BusinessException("已经收藏过该哈吉咪");
+            }
         }
         if (favoriteMapper.insertFavorite(Long.valueOf(userId), type, Long.valueOf(targetId)) != 1) {
             throw new BusinessException("数据库插入错误");
+        }
+        if (!redisCountUtil.incrementCollectCount(type, Long.valueOf(targetId), Long.valueOf(userId))) {
+            throw new BusinessException("已经收藏过该" + ("CAT".equals(type) ? "猫咪" : "帖子"));
         }
     }
 
