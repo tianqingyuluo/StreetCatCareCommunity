@@ -1,6 +1,5 @@
 package com.streetCat.dao;
 
-import com.streetCat.pojo.Adoption;
 import com.streetCat.vo.request.AdoptionRequest;
 import com.streetCat.vo.request.AdoptionStatusRequest;
 import com.streetCat.vo.response.AdoptionResponse;

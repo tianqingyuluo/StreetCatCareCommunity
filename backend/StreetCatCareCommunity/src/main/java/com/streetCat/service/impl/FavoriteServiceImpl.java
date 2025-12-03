@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -65,7 +64,6 @@ public class FavoriteServiceImpl implements FavoriteService {
              favoriteDetailResponse = favoriteMapper.getAllFavorites(userIdLong);
         }
         catch (Exception e) {
-            System.out.println(e);
             System.err.println(e.getMessage());
         }
         return favoriteDetailResponse;

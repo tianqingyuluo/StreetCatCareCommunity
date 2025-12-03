@@ -3,7 +3,6 @@ import com.streetCat.pojo.Post;
 import com.streetCat.pojo.PostWithUser;
 import com.streetCat.vo.request.CreateNewPostRequest;
 import com.streetCat.vo.request.UpdatePostStatusRequest;
-import com.streetCat.vo.response.PageResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

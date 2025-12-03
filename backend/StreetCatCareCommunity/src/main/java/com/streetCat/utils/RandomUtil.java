@@ -11,13 +11,6 @@ public class RandomUtil {
         for (int i = 0; i < 4; i++) sb.append(CHARS.charAt(R.nextInt(CHARS.length())));
         return sb.toString();
     }
-
-    public static String randomPhoto() {
-        StringBuilder sb = new StringBuilder("photo");
-        for (int i = 0; i < 4; i++) sb.append(CHARS.charAt(R.nextInt(CHARS.length())));
-        return sb.toString();
-    }
-
     public static long nextId() {
         return IdWorker.getId();
     }
