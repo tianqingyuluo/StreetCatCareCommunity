@@ -110,8 +110,13 @@ CREATE TABLE IF NOT EXISTS adoption_applications (
                                                      cat_id BIGINT NOT NULL COMMENT '猫咪ID',
                                                      applicant_id BIGINT NOT NULL COMMENT '申请人ID',
                                                      shelter_id BIGINT NOT NULL COMMENT '救助站ID',
-                                                     application_content JSON NOT NULL COMMENT '申请内容',
-                                                     status ENUM('PENDING','UNDER_REVIEW', 'INTERVIEW', 'HOME_VISIT', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+                                                     name VARCHAR(255) NOT NULL COMMENT '申请人姓名',
+    age INT COMMENT '申请人年龄',
+    phone VARCHAR(20) COMMENT '申请人电话',
+    address VARCHAR(255) COMMENT '申请人地址',
+    experience VARCHAR(255) COMMENT '申请人养猫经验',
+    reason VARCHAR(255) COMMENT '申请人领养原因',
+    status ENUM('PENDING', 'UNDER_REVIEW', 'INTERVIEW', 'HOME_VISIT', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
     review_notes TEXT COMMENT '审核备注',
     reviewer_id BIGINT COMMENT '审核人ID',
     reviewed_at DATETIME COMMENT '审核时间',
@@ -125,7 +130,7 @@ CREATE TABLE IF NOT EXISTS adoption_applications (
     FOREIGN KEY (applicant_id) REFERENCES users(id),
     FOREIGN KEY (shelter_id) REFERENCES shelters(id),
     FOREIGN KEY (reviewer_id) REFERENCES users(id)
-    ) COMMENT '领养申请表';
+    ) COMMENT='领养申请表';
 
 CREATE TABLE IF NOT EXISTS user_favorites (
                                               id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -187,3 +192,10 @@ CREATE TABLE IF NOT EXISTS sys_admin (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY uk_phone (phone)
     ) COMMENT='系统后台管理员账号';
+CREATE TABLE IF NOT EXISTS likes (
+                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       user_id BIGINT NOT NULL,
+                       target_type VARCHAR(50) NOT NULL, -- 'POST' 或 'CAT'
+                       target_id BIGINT NOT NULL,
+                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

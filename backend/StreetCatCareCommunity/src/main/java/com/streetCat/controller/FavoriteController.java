@@ -4,6 +4,8 @@ import com.streetCat.service.FavoriteService;
 import com.streetCat.utils.BusinessException;
 import com.streetCat.utils.JwtUtil;
 import com.streetCat.vo.request.FavoriteRequest;
+import com.streetCat.vo.response.FavoriteDetailResponse;
+import com.streetCat.vo.response.FavoriteDetailResponseWithListPhotos;
 import com.streetCat.vo.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -98,20 +101,21 @@ public class FavoriteController {
 
     @GetMapping("/favorites/all")
     @Operation(summary = "获取用户所有收藏")
-    public ResponseEntity<Object> getAllFavorites(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getAllFavorites(@RequestHeader("Authorization") String token) {
         try {
             String userId = JwtUtil.parse(token.replace("Bearer ", ""));
-            return ResponseEntity.ok(PageResponse.of(favoriteService.getAllFavorites(userId)));
-        } catch (BusinessException e) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", false);
-            result.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(result);
+            // 获取原始的 FavoriteDetailResponse 数据
+            List<FavoriteDetailResponse> favoriteList = favoriteService.getAllFavorites(userId);
+
+            // 将 FavoriteDetailResponse 转换为 FavoriteDetailResponseWithListPhotos
+            List<FavoriteDetailResponseWithListPhotos> convertedFavorites = favoriteList.stream()
+                    .map(FavoriteDetailResponseWithListPhotos::new) // 使用构造函数进行转换
+                    .toList();
+            // 返回转换后的数据
+            return ResponseEntity.ok(PageResponse.of(convertedFavorites));
         } catch (Exception e) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", false);
-            result.put("message",e.getMessage());
-            return ResponseEntity.status(500).body(result);
+            // 处理异常情况
+            return ResponseEntity.badRequest().body("Error occurred: " + e.getMessage());
         }
     }
 

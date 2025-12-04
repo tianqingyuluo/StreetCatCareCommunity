@@ -40,7 +40,7 @@
                      #{userId},
                      #{request.postType},
                      #{request.images},
-                     'PENDING',
+                     #{status},
                      NOW()
                  )
     </insert>
@@ -122,6 +122,7 @@
         p.like_count AS likeCount,
         p.comment_count AS commentCount,
         p.view_count AS viewCount,
+        p.favorite_count AS favoriteCount,
         p.is_top AS isTop,
         p.is_elite AS isElite,
         p.status,
@@ -232,5 +233,16 @@
             updated_at = NOW()
         WHERE id = #{id}
     </update>
-
+    <update id="updateCountField">
+        UPDATE community_posts
+        SET
+        <choose>
+            <when test="fieldName == 'like'">like_count = like_count + #{count},</when>
+            <when test="fieldName == 'comment'">comment_count = comment_count + #{count},</when>
+            <when test="fieldName == 'view'">view_count = view_count + #{count},</when>
+            <when test="fieldName == 'collect'">favorite_count =favorite_count+ #{count},</when>
+        </choose>
+        updated_at = NOW()
+        WHERE id = #{targetId}
+    </update>
 </mapper>

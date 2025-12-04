@@ -42,6 +42,8 @@ public class PostWithUserResponse {
     @Schema(description = "浏览数", example = "0")
     private Integer viewCount;
 
+    private Integer favoriteCount;
+
     @Schema(description = "是否置顶", example = "true")
     private Boolean isTop;
 
@@ -71,9 +73,13 @@ public class PostWithUserResponse {
         this.status = postWithUser.getStatus();
         this.createdAt = postWithUser.getCreatedAt();
         this.authorInfo = postWithUser.getAuthorInfo();
+        this.favoriteCount = postWithUser.getFavoriteCount();
 
         // 转换images字段
         this.images = convertImagesToArray(postWithUser.getImages());
+    }
+    public PostWithUserResponse() {
+
     }
 
     private List<String> convertImagesToArray(String imagesJson) {
@@ -86,5 +92,9 @@ public class PostWithUserResponse {
         } catch (Exception e) {
             return new ArrayList<>();
         }
+    }
+
+    public void setAuthorInfo(String postAuthorId, String postAuthorAvatarUrl, String postAuthorNickname) {
+        this.setAuthorInfo(new GetUserResponse.UserInfo(postAuthorId,postAuthorAvatarUrl,postAuthorNickname));
     }
 }

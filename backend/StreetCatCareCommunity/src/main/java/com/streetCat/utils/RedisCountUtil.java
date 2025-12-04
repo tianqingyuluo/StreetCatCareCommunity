@@ -1,20 +1,24 @@
 package com.streetCat.utils;
 
+import com.streetCat.dao.MainCatMapper;
+import com.streetCat.dao.PostMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-
+@EnableScheduling
 @Component
 public class RedisCountUtil {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
+    @Autowired
+    private MainCatMapper catMapper;
+    @Autowired
+    private PostMapper postMapper;
     // Redis key 前缀
     private static final String LIKE_COUNT_KEY = "count:like";
     private static final String COMMENT_COUNT_KEY = "count:comment";
@@ -211,7 +215,7 @@ public class RedisCountUtil {
     /**
      * 定时同步点赞数到数据库（每分钟执行）
      */
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 6000)
     public void syncLikeCountToDatabase() {
         syncCountToDatabase(LIKE_COUNT_KEY, "like");
     }
@@ -219,7 +223,7 @@ public class RedisCountUtil {
     /**
      * 定时同步收藏数到数据库（每分钟执行）
      */
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 6000)
     public void syncCollectCountToDatabase() {
         syncCountToDatabase(COLLECT_COUNT_KEY, "collect");
     }
@@ -227,7 +231,7 @@ public class RedisCountUtil {
     /**
      * 定时同步评论数到数据库（每2分钟执行）
      */
-    @Scheduled(fixedRate = 120000)
+    @Scheduled(fixedRate = 6000)
     public void syncCommentCountToDatabase() {
         syncCountToDatabase(COMMENT_COUNT_KEY, "comment");
     }
@@ -235,7 +239,7 @@ public class RedisCountUtil {
     /**
      * 定时同步浏览数到数据库（每30秒执行）
      */
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 6000)
     public void syncViewCountToDatabase() {
         syncCountToDatabase(VIEW_COUNT_KEY, "view");
     }
@@ -256,9 +260,9 @@ public class RedisCountUtil {
             try {
                 // 解析key获取目标类型和ID
                 String[] parts = key.split(":");
-                if (parts.length >= 3) {
-                    String targetType = parts[1]; // Cat 或 POST
-                    Long targetId = Long.parseLong(parts[2]);
+                if (parts.length >= 4) {
+                    String targetType = parts[2]; // Cat 或 POST
+                    Long targetId = Long.parseLong(parts[3]);
 
                     // 获取计数值
                     Object countObj = redisTemplate.opsForValue().get(key);
@@ -288,13 +292,12 @@ public class RedisCountUtil {
         try {
             switch (targetType) {
                 case "CAT":
-                    // 更新猫咪表的计数
-                    // catMapper.updateCountField(targetId, fieldName, count);
+                    catMapper.updateCountField(targetId, fieldName, count);
                     System.out.printf("同步猫咪计数: ID=%d, 字段=%s, 数量=%d%n", targetId, fieldName, count);
                     break;
                 case "POST":
                     // 更新帖子表的计数
-                    // postMapper.updateCountField(targetId, fieldName, count);
+                    postMapper.updateCountField(targetId, fieldName, count);
                     System.out.printf("同步帖子计数: ID=%d, 字段=%s, 数量=%d%n", targetId, fieldName, count);
                     break;
                 default:
@@ -314,40 +317,5 @@ public class RedisCountUtil {
         syncCollectCountToDatabase();
         syncCommentCountToDatabase();
         syncViewCountToDatabase();
-    }
-
-    /**
-     * 清空某个目标的计数（用于测试或重置）
-     */
-    public void clearCount(String targetType, Long targetId) {
-        String[] countTypes = {LIKE_COUNT_KEY, COLLECT_COUNT_KEY, COMMENT_COUNT_KEY, VIEW_COUNT_KEY};
-        for (String countType : countTypes) {
-            String key = generateKey(countType, targetType, targetId);
-            redisTemplate.delete(key);
-        }
-    }
-
-    /**
-     * 获取用户的所有收藏目标ID列表（需要扩展实现）
-     */
-    public List<Long> getUserCollects(String targetType, Long userId) {
-        // 这里需要根据实际情况实现，可能需要使用Redis Set或Hash结构
-        // 当前实现基于现有的key结构，可能需要优化
-        String pattern = USER_ACTION_KEY + ":collect:" + targetType + ":*:" + userId;
-        var keys = redisTemplate.keys(pattern);
-
-        List<Long> targetIds = new ArrayList<>();
-        for (String key : keys) {
-            String[] parts = key.split(":");
-            if (parts.length >= 5) {
-                try {
-                    Long targetId = Long.parseLong(parts[3]);
-                    targetIds.add(targetId);
-                } catch (NumberFormatException e) {
-                    // 忽略格式错误的key
-                }
-            }
-        }
-        return targetIds;
     }
 }

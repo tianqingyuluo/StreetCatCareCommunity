@@ -1,6 +1,4 @@
 package com.streetCat.dao;
-
-import cn.hutool.db.PageResult;
 import com.streetCat.pojo.Post;
 import com.streetCat.pojo.PostWithUser;
 import com.streetCat.vo.request.CreateNewPostRequest;
@@ -16,13 +14,14 @@ public interface PostMapper {
 
     int insertPost(@Param("id")        Long id,
                    @Param("userId")    String userId,
+                   @Param("status")    String status,
                    @Param("request")   CreateNewPostRequest request);
 
     Post getPostById(@Param("id")      Long id);
 
     ArrayList<Post> findPendingPosts();
 
-    PageResult<PostWithUser> listPosts(
+    List<PostWithUser> listPosts(
             @Param("keyword") String keyword,
             @Param("postType") String postType,
             @Param("sort") String sort,
@@ -46,4 +45,6 @@ public interface PostMapper {
     void deletePost(@Param("id") String id);
     void updatePostTopStatus(@Param("id") String id, @Param("isTop") Boolean isTop);
     void updatePostEliteStatus(@Param("id") String id, @Param("isElite") Boolean isElite);
+
+    void updateCountField(Long targetId, String fieldName, Integer count);
 }

@@ -1,9 +1,11 @@
 package com.streetCat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.streetCat.dao.AdminMapper;
 import com.streetCat.pojo.Cat;
 import com.streetCat.service.CatService;
 import com.streetCat.utils.BusinessException;
+import com.streetCat.utils.JwtUtil;
 import com.streetCat.vo.request.CatSaveRequest;
 import com.streetCat.vo.response.CatResponse;
 import com.streetCat.vo.response.PageResponse;
@@ -20,13 +22,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CatController {
     private final CatService catService;
+    private final AdminMapper adminMapper;
     @PostMapping
     @Operation(summary = "新增猫咪")
     public ResponseEntity<Object> createCat(
             @RequestHeader("Authorization") String token,
             @RequestBody Map<String, Object> body) {
-
-        //todo:这里需要加上用户权限判定
+        String userId = JwtUtil.parse(token.replace("Bearer ", ""));
+        if (!adminMapper.existsById(userId)){
+            throw new BusinessException("你不是管理员权限，你不配创建哈吉咪");
+        }
         try {
             CatSaveRequest req = new CatSaveRequest();
             req.setName((String) body.get("name"));
@@ -78,6 +83,10 @@ public class CatController {
                                             @RequestHeader("Authorization") String token,
                                             @RequestBody Map<String, Object> body) {
         try {
+            String userId = JwtUtil.parse(token.replace("Bearer ", ""));
+            if (!adminMapper.existsById(userId)){
+                throw new BusinessException("你不是管理员权限，你无权修改哈吉咪的属性");
+            }
             CatSaveRequest req = new CatSaveRequest();
             req.setName((String) body.get("name"));
             req.setBreed((String) body.get("breed"));
@@ -113,18 +122,29 @@ public class CatController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)   // 明确返回 204
-    public void deleteCat(@PathVariable String id) {
+    public ResponseEntity<?> deleteCat(@PathVariable String id,@RequestHeader("Authorization") String token) {
+        String userId = JwtUtil.parse(token.replace("Bearer ", ""));
+        if (!adminMapper.existsById(userId)){
+            return ResponseEntity.badRequest().body("你这个权限的哈吉人还不配删本猫");
+        }
         catService.deleteCat(id);
+        return null;
     }
 
 
     @PatchMapping("/{id}/status")
-    public void changeCatStatus(@PathVariable String id,
+    public ResponseEntity<?> changeCatStatus(@PathVariable String id,
+                                @RequestHeader("Authorization") String token,
                                 @RequestBody Map<String, String> body) {
+        String userId = JwtUtil.parse(token.replace("Bearer ", ""));
+        if (!adminMapper.existsById(userId)){
+            return ResponseEntity.badRequest().body("你不是管理员权限，你无权修改哈吉咪的属性");
+        }
         String status = body.get("status");   // 取出值
         if (status == null) {
-            throw new BusinessException("缺少 status 字段");
+            return ResponseEntity.badRequest().body("缺少 status 字段");
         }
         catService.changeCatStatus(id, status.trim());
+        return null;
     }
 }

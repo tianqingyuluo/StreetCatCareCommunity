@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.streetCat.dao.AdoptionMapper">
+
+    <!-- 创建领养申请 -->
+    <insert id="createAdoption" parameterType="map">
+        INSERT INTO adoption_applications (
+            id, cat_id, applicant_id, shelter_id, status, name, age, phone, address, experience, reason
+        )
+        VALUES (
+                   #{id},
+                   #{request.catId},
+                   #{applicantId},
+                   #{shelterId},
+                   #{status},
+                   #{request.name},
+                   #{request.age},
+                   #{request.phone},
+                   #{request.address},
+                   #{request.experience},
+                   #{request.reason}
+               )
+    </insert>
+    <!-- 查询领养申请列表 -->
+    <select id="listAdoptions" resultType="com.streetCat.vo.response.AdoptionResponse">
+        SELECT * FROM adoption_applications
+        <where>
+            <if test="catId != null and catId != ''">
+                AND cat_id = #{catId}
+            </if>
+            <if test="shelterId != null and shelterId != ''">
+                AND shelter_id = #{shelterId}
+            </if>
+            <if test="status != null and status !='' ">
+                AND status = #{status}
+            </if>
+            <if test="userId != null and userId != ''">
+                AND applicant_id = #{userId}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 查询单个领养申请详情 -->
+    <select id="getAdoption" parameterType="Long" resultType="com.streetCat.vo.response.AdoptionResponse">
+        SELECT * FROM adoption_applications WHERE id = #{id}
+    </select>
+
+    <!-- 更新领养申请状态 -->
+    <update id="updateAdoptionStatus" parameterType="map">
+        UPDATE adoption_applications
+        SET status = #{updateReq.status},
+        review_notes = #{updateReq.reviewNote},
+        reviewer_id = #{reviewerId},
+        reviewed_at = #{updateReq.reviewDate}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 上传合同 -->
+    <update id="uploadContract">
+        UPDATE adoption_applications
+        SET contract_url = #{file.originalFilename}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

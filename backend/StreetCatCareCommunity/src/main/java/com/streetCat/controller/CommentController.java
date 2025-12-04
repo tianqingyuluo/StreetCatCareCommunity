@@ -1,6 +1,7 @@
 package com.streetCat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.streetCat.dao.MainCatMapper;
 import com.streetCat.dao.PostMapper;
 import com.streetCat.pojo.Comment;
 import com.streetCat.service.CommentService;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/comments")
@@ -28,6 +28,7 @@ public class CommentController {
 
     private final CommentService commentService;
     private final PostMapper postMapper;
+    private final MainCatMapper catMapper;
 
     @PostMapping
     @Operation(summary = "发布评论")
@@ -63,8 +64,8 @@ public class CommentController {
                     throw new BusinessException("帖子不存在");
             }
             else {
-                //todo:猫咪写完后补充是否有猫帖子的判定
-                throw new BusinessException("猫咪帖不存在");
+                if (catMapper.selectCatById(Long.valueOf(createCommentRequest.getTargetId())) == null)
+                    throw new BusinessException("猫咪帖不存在");
             }
             Comment response = commentService.createComment(userId, createCommentRequest);
             CommentResp res = new CommentResp(response);
@@ -91,12 +92,16 @@ public class CommentController {
     public ResponseEntity<String> deleteComments(
             @RequestHeader("Authorization") String token,
             @RequestBody List<String> ids) {
-
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未携带token或token格式错误");
+        try {
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("未携带token或token格式错误");
+            }
+            //权限管理在service层
+            String userId = JwtUtil.parse(token.replace("Bearer ", ""));
+            commentService.deleteComments(ids, userId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("删除成功");
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body("删除评论失败:"+e.getMessage());
         }
-        String userId = JwtUtil.parse(token.replace("Bearer ", ""));
-        commentService.deleteComments(ids, userId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("删除成功");
     }
 }
