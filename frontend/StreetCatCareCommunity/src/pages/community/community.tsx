@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { navigateTo } from '@tarojs/taro';
-import { View, Text } from '@tarojs/components';
-// 保持原有自定义组件导入
+import { useState } from 'react';
+import { View, Text, ScrollView } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+// 保持自定义组件导入
 import { Card } from '@/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/ui/avatar';
 import { Button } from '@/ui/button';
@@ -9,6 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
 import { Input } from '@/ui/input';
 import { Badge } from '@/ui/badge';
 import { ImageWithFallback } from '@/ui/image';
+import { FontAwesome } from 'taro-icons';
+import { navigateTo } from '@tarojs/taro';
+import IconFont from '@/icons';
 
 interface CommunityPageProps {
   onNavigate: (page: string, data?: any) => void;
@@ -16,7 +19,25 @@ interface CommunityPageProps {
 
 export default function CommunityPage({ onNavigate }: CommunityPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  
   const [posts, setPosts] = useState([
+    {
+      id: 0,
+      title: '【必读】社区版规 & 新手指南',
+      author: {
+        name: '社区管理员',
+        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Admin',
+      },
+      content: '欢迎来到流浪猫关爱社区！为了维护良好的社区环境，请大家遵守以下规则：1. 文明交流... 2. 领养需谨慎...',
+      images: [],
+      time: '2025-01-01',
+      likes: 999,
+      comments: 0,
+      liked: false,
+      postType: 'DISCUSSION',
+      isPinned: true,
+      isFeatured: false,
+    },
     {
       id: 1,
       title: '小橘吃罐头啦',
@@ -33,6 +54,8 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
       comments: 12,
       liked: false,
       postType: 'DISCUSSION',
+      isPinned: false,
+      isFeatured: false,
     },
     {
       id: 2,
@@ -51,6 +74,8 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
       comments: 34,
       liked: false,
       postType: 'EXPERIENCE',
+      isPinned: false,
+      isFeatured: true,
     },
     {
       id: 3,
@@ -66,6 +91,8 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
       comments: 23,
       liked: false,
       postType: 'HELP',
+      isPinned: false,
+      isFeatured: false,
     },
     {
       id: 4,
@@ -83,6 +110,8 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
       comments: 45,
       liked: false,
       postType: 'EXPERIENCE',
+      isPinned: false,
+      isFeatured: true,
     },
   ]);
 
@@ -103,11 +132,14 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
     navigateTo({url: '/pages/postDetails/postDetails'});
   };
 
+  const handlePostCreate = () => {
+    navigateTo({url: '/pages/createPost/createPost'});
+  };
   const getPostTypeLabel = (type: string) => {
     const typeMap: Record<string, { label: string; color: string }> = {
       'DISCUSSION': { label: '讨论贴', color: 'bg-[#3b82f6]' }, // blue-500
       'EXPERIENCE': { label: '经验贴', color: 'bg-[#22c55e]' }, // green-500
-      'HELP': { label: '求助帖', color: 'bg-[#f59e0b]' },       // amber-500
+      'HELP': { label: '求助帖', color: 'bg-[#f59e0b]' }, // amber-500
     };
     return typeMap[type] || typeMap['DISCUSSION'];
   };
@@ -123,12 +155,19 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
         p.content.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    return filtered;
+    
+    return filtered.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return 0;
+    });
   };
 
-  // 提取单个帖子卡片的渲染逻辑
   const renderPostCard = (post: any) => (
-    <Card key={post.id} className="p-4 bg-[#ffffff]">
+    <Card 
+      key={post.id} 
+      className={`p-4 bg-[#ffffff] ${post.isPinned ? 'border-[#ff8c42]/30 bg-[#ff8c42]/5' : ''}`}
+    >
       {/* Author Info */}
       <View className="flex flex-row items-center gap-3 mb-3">
         <Avatar>
@@ -136,22 +175,37 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
           <AvatarFallback>{post.author.name[0]}</AvatarFallback>
         </Avatar>
         <View className="flex-1">
-          <Text className="block text-[#262626]">{post.author.name}</Text>
-          <Text className="block text-[#78716c] text-xs">{post.time}</Text>
+          <Text className="text-[#292524] block">{post.author.name}</Text>
+          <Text className="text-[#78716c] text-xs block">{post.time}</Text>
         </View>
-        <Badge className={`${getPostTypeLabel(post.postType).color} text-[#ffffff]`}>
-          {getPostTypeLabel(post.postType).label}
-        </Badge>
+        
+        {/* 状态标签区域 */}
+        <View className="flex flex-row gap-2">
+          {post.isPinned && (
+            <Badge variant="outline" className="border-[#ef4444] text-[#ef4444] gap-1 px-2 bg-[#fef2f2]">
+              <Text className="text-xs">📌 置顶</Text>
+            </Badge>
+          )}
+          {post.isFeatured && (
+            <Badge variant="outline" className="border-[#f59e0b] text-[#f59e0b] gap-1 px-2 bg-[#fffbeb]">
+              <Text className="text-xs">🏆 精华</Text>
+            </Badge>
+          )}
+          <Badge className={`${getPostTypeLabel(post.postType).color} text-[#ffffff]`}>
+            {getPostTypeLabel(post.postType).label}
+          </Badge>
+        </View>
       </View>
 
-      {/* Title & Content Area */}
+      {/* Title & Content */}
       <View 
         onClick={() => handlePostClick(123)}
       >
-        <Text className="block text-[#262626] mb-2 font-bold text-lg">{post.title}</Text>
+        <View className="mb-2 flex flex-row items-center gap-2">
+          <Text className="text-[#292524] font-medium text-base">{post.title}</Text>
+        </View>
 
-        {/* Content */}
-        <Text className="block text-[#262626] mb-3 leading-relaxed">{post.content}</Text>
+        <Text className="text-[#292524] mb-3 leading-relaxed block">{post.content}</Text>
 
         {/* Images */}
         {post.images.length > 0 && (
@@ -171,6 +225,7 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
                   src={image}
                   alt={`图片 ${index + 1}`}
                   className="w-full h-full object-cover"
+                  mode='aspectFill'
                 />
               </View>
             ))}
@@ -181,65 +236,59 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
       {/* Actions */}
       <View className="flex flex-row items-center gap-6 pt-3 border-t border-[rgba(0,0,0,0.08)]">
         <View
-          onClick={(e) => {
-            e.stopPropagation(); // 防止触发卡片点击
-            handleLike(post.id);
-          }}
-          className="flex flex-row items-center gap-1.5 text-[#78716c] hover:text-[#ff8c42] transition-colors"
+          onClick={(e) => { e.stopPropagation(); handleLike(post.id); }}
+          className="flex flex-row items-center gap-1.5"
         >
-          {/* Emoji 替换 Heart */}
-          <Text className={`text-lg ${post.liked ? 'text-[#ff8c42]' : ''}`}>
-            {post.liked ? '❤️' : '🤍'}
+          <Text className={`text-lg ${post.liked ? 'text-[#ff8c42]' : 'text-[#78716c]'}`}>
+            <FontAwesome family={post.liked ? 'solid': 'regular'} name="heart" size={19} color={post.liked ? 'orange' : 'black'} />
           </Text>
-          <Text className="text-sm">{post.likes}</Text>
+          <Text className={`text-sm ${post.liked ? 'text-[#ff8c42]' : 'text-[#78716c]'}`}>
+            {post.likes}
+          </Text>
         </View>
         
         <View 
-          onClick={(e) => {
-            e.stopPropagation();
-            handlePostClick(123);
-          }}
-          className="flex flex-row items-center gap-1.5 text-[#78716c] hover:text-[#ff8c42] transition-colors"
+          onClick={(e) => { e.stopPropagation(); handlePostClick(123); }}
+          className="flex flex-row items-center gap-1.5"
         >
-          {/* Emoji 替换 MessageCircle */}
-          <Text className="text-lg">💬</Text>
-          <Text className="text-sm">{post.comments}</Text>
+          <FontAwesome family='regular' name='comment' size={19}/>
+          <Text className="text-sm text-[#78716c]">{post.comments}</Text>
         </View>
         
-        <View className="flex flex-row items-center gap-1.5 text-[#78716c] hover:text-[#ff8c42] transition-colors ml-auto">
-          {/* Emoji 替换 Share2 */}
-          <Text className="text-lg">🔗</Text>
+        <View className="flex flex-row items-center gap-1.5 ml-auto">
+          <IconFont name='share' size={40} color="#000000" />
         </View>
       </View>
     </Card>
   );
 
   return (
-    <View className="pb-20 bg-[#fafaf9] min-h-screen">
+    <ScrollView scrollY className="pb-20 bg-[#fafaf9] min-h-screen">
       {/* Header */}
-      <View className="bg-gradient-to-br from-[#ff8c42] to-[#f59e0b] px-4 pt-8 pb-6 rounded-b-3xl">
+      <View className="bg-gradient-to-br from-orange-600 to-orange-300 px-4 pt-8 pb-6 rounded-3xl">
         <View className="flex flex-row items-center justify-between mb-4">
-          <Text className="text-[#ffffff] text-2xl font-medium">社区交流</Text>
+          <Text className="text-[#ffffff] text-2xl">社区交流</Text>
           <Button
             size="icon"
-            className="bg-[#ffffff] text-[#ff8c42] hover:bg-white/90 rounded-full h-10 w-10 flex items-center justify-center"
-            onClick={() => onNavigate('createPost')}
+            className="bg-[#ffffff] text-[#ff8c42] hover:bg-[#ffffff]/90 rounded-full h-10 w-10 flex items-center justify-center"
+            onClick={() => handlePostCreate()}
           >
-            {/* Emoji 替换 Plus */}
-            <Text className="text-xl font-bold">➕</Text>
+            {/* <Text className="text-xl">➕</Text> */}
+            <FontAwesome family='solid' name='plus' size={22}/>
           </Button>
         </View>
         
         {/* Search Bar */}
-        <View className="relative">
-          {/* Emoji 替换 Search Icon */}
-          <Text className="absolute left-3 top-1/2 -translate-y-1/2 text-sm z-10">🔍</Text>
+        <View className="relative w-full">
+          {/* <View className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+            <Text className="text-[#78716c]">🔍</Text>
+          </View> */}
           <Input
             type="text"
             placeholder="搜索帖子..."
             value={searchQuery}
-            onInput={(e) => setSearchQuery(e.detail.value)} // Taro Input 事件是 onInput, value 在 detail 中
-            className="pl-10 bg-[#ffffff] border-0 h-10 rounded-xl w-full"
+            onInput={(e) => setSearchQuery(e.target.value)}
+            className="bg-[#ffffff] border-0 h-10 rounded-xl w-full box-border"
           />
         </View>
       </View>
@@ -271,6 +320,6 @@ export default function CommunityPage({ onNavigate }: CommunityPageProps) {
           </TabsContent>
         </Tabs>
       </View>
-    </View>
+    </ScrollView>
   );
 }

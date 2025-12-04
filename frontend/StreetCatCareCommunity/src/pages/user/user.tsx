@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, Image } from '@tarojs/components';
+import { navigateTo } from '@tarojs/taro';
 // 保持你的自定义组件导入不变
 import { Card } from '@/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/ui/avatar';
 import { Badge } from '@/ui/badge';
 import { FontAwesome } from 'taro-icons'
+import IconFont from '@/icons';
 
 interface ProfilePageProps {
   onNavigate: (page: string, data?: any) => void;
@@ -29,27 +31,27 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
   const menuItems = [
     {
       title: '我的收藏',
-      icon: '❤️',
+      icon: 'heart',
       badge: '12',
-      onClick: () => onNavigate('favorites'),
+      onClick: () => navigateTo({url: '/subpackages/userPages/pages/favorite/favorite'}),
     },
     {
       title: '领养申请记录',
-      icon: '📄',
+      icon: 'file',
       badge: '3',
-      onClick: () => onNavigate('adoption'),
+      onClick: () => navigateTo({url: '/subpackages/userPages/pages/adoptionApplication/adoptionApplication'}),
     },
     {
       title: '投喂记录',
-      icon: '📅',
+      icon: 'calendar',
       badge: '45',
-      onClick: () => onNavigate('feeding'),
+      onClick: () => navigateTo({url: '/subpackages/userPages/pages/feedingRecord/feedingRecord'}),
     },
     {
       title: '我的帖子',
-      icon: '👥',
+      icon: 'rss',
       badge: '8',
-      onClick: () => onNavigate('myPosts'),
+      onClick: () => navigateTo({url: '/subpackages/userPages/pages/myPostPage/myPostPage'}),
     },
   ];
 
@@ -62,7 +64,7 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
 
   return (
     <View className="pb-20 bg-[#fafaf9] min-h-screen">
-      <View className="bg-gradient-to-br from-[#ff8c42] to-amber-500 px-4 pt-8 pb-20 rounded-3xl">
+      <View className="bg-gradient-to-br from-orange-600 to-orange-300 px-4 pt-8 pb-20 rounded-3xl">
         <View className="flex items-center justify-between mb-6">
           <Text className="text-white text-2xl">我的</Text>
           <View className="text-white">
@@ -118,7 +120,7 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
                 key={index}
                 className={`text-center flex flex-col items-center ${!achievement.earned ? 'opacity-40' : ''}`}
               >
-                <Text className="text-3xl mb-1">{achievement.icon}</Text>
+                <Text className="text-3xl">{achievement.icon}</Text>
                 <Text className="text-xs text-[#252525]">{achievement.title}</Text>
               </View>
             ))}
@@ -129,7 +131,7 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
       {/* 菜单 */}
       <View className="px-4 mb-6">
         <Text className="text-[#252525] mb-3 block">我的服务</Text>
-        <Card className="divide-y divide-[rgba(0,0,0,0.08)] bg-[#ffffff]">
+        <Card className="divide-y divide-[rgba(0,0,0,0.08)] bg-[#ffffff] gap-1">
           {menuItems.map((item, index) => {
             return (
               <View
@@ -142,7 +144,8 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
                   {/* bg-secondary -> bg-[#fff5ed] */}
                   <View className="w-10 h-10 rounded-full bg-[#fff5ed] flex items-center justify-center">
                     {/* text-primary -> text-[#ff8c42] */}
-                    <Text className="text-lg">{item.icon}</Text>
+                    {/* <Text className="text-lg">{item.icon}</Text> */}
+                    <IconFont name={item.icon} size={40} color="#ff8c42" />
                   </View>
                   <Text className="text-[#252525]">{item.title}</Text>
                 </View>
@@ -154,7 +157,7 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
                     </Badge>
                   )}
                   {/* ChevronRight -> Emoji */}
-                  <Text className="text-[#78716c]">➡️</Text>
+                  <IconFont name="chevron-right" size={30} color="#ff8c42" />
                 </View>
               </View>
             );
@@ -172,11 +175,11 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
             <View className="flex items-center gap-3">
               <View className="w-10 h-10 rounded-full bg-[#fff5ed] flex items-center justify-center">
                 {/* Settings Icon -> Emoji */}
-                <Text className="text-lg">⚙️</Text>
+                <FontAwesome family='solid' name="cog" size={20} color='black' />
               </View>
               <Text className="text-[#252525]">设置</Text>
             </View>
-            <Text className="text-[#78716c]">➡️</Text>
+            <IconFont name="chevron-right" size={30} color="#ff8c42" />
           </View>
         </Card>
       </View>

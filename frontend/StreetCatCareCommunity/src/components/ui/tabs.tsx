@@ -107,7 +107,7 @@ function TabsTrigger({
         disabled && "pointer-events-none opacity-50",
         // 激活状态样式 (替代原 data-[state=active] 选择器)
         isActive
-          ? "bg-card text-foreground shadow-sm dark:border-input dark:bg-input/30 dark:text-foreground"
+          ? "bg-card text-[#ff8c42] shadow-sm dark:border-input dark:bg-input/30 dark:text-foreground"
           : "text-muted-foreground hover:text-foreground", // 非激活状态
         // SVG 图标样式适配
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",

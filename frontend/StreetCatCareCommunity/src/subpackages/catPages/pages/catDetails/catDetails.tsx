@@ -8,9 +8,12 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/ui/carousel';
+import { Avatar, AvatarImage, AvatarFallback } from '@/ui/avatar';
 import { FontAwesome } from 'taro-icons' 
 
 import { useCatStore } from '@/stores/catStore';
+import { navigateTo } from '@tarojs/taro';
+import IconFont from '@/icons';
 
 interface CatDetailPageProps {
   data: any;
@@ -46,6 +49,43 @@ export default function CatDetailPage({ data, onNavigate }: CatDetailPageProps) 
     { date: '2025-10-13', feeder: '爱心志愿者B', food: '罐头', amount: '1罐' },
     { date: '2025-10-12', feeder: '爱心志愿者C', food: '猫粮', amount: '150g' },
   ];
+
+  const topComments = [
+    {
+      id: 1,
+      author: {
+        name: '猫咪爱好者',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=10',
+      },
+      content: '小橘真的太可爱了！每次看到它都让人心情变好，希望它能早日找到温暖的家。',
+      time: '3天前',
+      likes: 156,
+    },
+    {
+      id: 2,
+      author: {
+        name: '志愿者小张',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=11',
+      },
+      content: '已经投喂了好几次，小橘很亲人，适合家庭领养。',
+      time: '5天前',
+      likes: 89,
+    },
+    {
+      id: 3,
+      author: {
+        name: '铲屎官新手',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=12',
+      },
+      content: '看着真的好心疼，希望能有好心人领养它！',
+      time: '1周前',
+      likes: 67,
+    },
+  ];
+
+  const handleCommentsClick = () => {
+    navigateTo({url: '/subpackages/catPages/pages/catComments/catComments'});
+  };
 
   return (
     <ScrollView className="pb-20 bg-[#fafaf9] min-h-screen">
@@ -199,6 +239,52 @@ export default function CatDetailPage({ data, onNavigate }: CatDetailPageProps) 
             <Text className="text-[#78716c] leading-relaxed">
               {cat.name}是一只非常温顺可爱的{cat.breed}，性格亲人，喜欢和人互动。目前身体健康，已完成疫苗接种和绝育手术。希望能找到一个有爱心的家庭，给它一个温暖的家。
             </Text>
+          </Card>
+        </View>
+
+        {/* Top Comments */}
+        <View className="mb-6">
+          <View className="flex flex-row items-center justify-between mb-3">
+            <View className="flex flex-row items-center gap-2">
+              <IconFont name="message-circle" size={20} color="#252525" />
+              <Text className="text-[#252525] font-medium text-base">热门评论</Text>
+            </View>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-[#ff8c42] hover:bg-[#fff5ed]"
+              onClick={() => handleCommentsClick()}
+            >
+              查看全部
+            </Button>
+          </View>
+          
+          <Card className="p-4 bg-[#ffffff]">
+            <View className="space-y-4">
+              {topComments.slice(0, 3).map((comment) => (
+                <View key={comment.id} className="pb-4 border-b border-[rgba(0,0,0,0.08)] last:border-0 last:pb-0">
+                  <View className="flex flex-row gap-3">
+                    <Avatar className="flex-shrink-0">
+                      <AvatarImage src={comment.author.avatar} />
+                      <AvatarFallback>{comment.author.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <View className="flex-1">
+                      <View className="flex flex-row items-center justify-between mb-1">
+                        <Text className="text-[#252525] text-sm">{comment.author.name}</Text>
+                        <Text className="text-[#78716c] text-xs">{comment.time}</Text>
+                      </View>
+                      <Text className="text-[#78716c] text-sm leading-relaxed mb-2 block">
+                        {comment.content}
+                      </Text>
+                      <View className="flex flex-row items-center gap-1 text-[#ff8c42]">
+                        <IconFont name="thumbs-up" size={12} color="#ff8c42" />
+                        <Text className="text-xs">{comment.likes}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
           </Card>
         </View>
 

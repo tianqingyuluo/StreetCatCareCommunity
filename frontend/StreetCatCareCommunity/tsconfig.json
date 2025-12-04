@@ -28,7 +28,8 @@
       "@/services/*": ["./src/services"],
       "@/ui/*": ["./src/components/ui"],
       "@/api/*": ["./src/services/api"],
-      "@/apiTypes/*": ["./src/services/types"]
+      "@/apiTypes/*": ["./src/services/types"],
+      "@/icons/*": ["./src/components/iconfont"],
     }
   },
   "include": ["./src", "./types", "./config"],
