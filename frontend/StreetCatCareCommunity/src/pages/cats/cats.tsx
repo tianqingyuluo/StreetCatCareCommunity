@@ -126,7 +126,7 @@ export default function CatListPage({ onNavigate }: CatListPageProps) {
 
   const handleCatClick = (catId: number) => {
     useCatStore.getState().setSelectedCatId(catId);
-    navigateTo({ url: `/pages/catDetails/catDetails` });
+    navigateTo({ url: `/subpackages/catPages/pages/catDetails/catDetails` });
   };
 
   const handleSearch = (value: string) => {

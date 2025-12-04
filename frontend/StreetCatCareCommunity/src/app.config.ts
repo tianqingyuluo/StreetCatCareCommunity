@@ -1,3 +1,5 @@
+import { useGlobalIconFont } from './components/iconfont/helper';
+
 export default defineAppConfig({
   pages: [
     'pages/login/login',
@@ -5,10 +7,33 @@ export default defineAppConfig({
     'pages/shelters/shelters',
     'pages/shelterDetails/shelterDetails',
     'pages/cats/cats',
-    'pages/catDetails/catDetails',
     'pages/community/community',
     'pages/postDetails/postDetails',
+    'pages/createPost/createPost',
     'pages/user/user',
+    // 'pages/favorite/favorite',
+    // 'pages/feedingRecord/feedingRecord',
+    // 'pages/adoptionApplication/adoptionApplication'
+  ],
+  subPackages: [
+    {
+      root: 'subpackages/userPages',
+      pages: [
+        'pages/favorite/favorite',
+        'pages/feedingRecord/feedingRecord',
+        'pages/adoptionApplication/adoptionApplication',
+        'pages/myPostPage/myPostPage',
+      ],
+      name: "用户相关页"
+    },
+    {
+      root: 'subpackages/catPages',
+      pages: [
+        'pages/catDetails/catDetails',
+        'pages/catComments/catComments',
+      ],
+      name: "猫咪相关页"
+    },
   ],
   tabBar: {
     selectedColor: "#ff8c42",
@@ -44,5 +69,6 @@ export default defineAppConfig({
     navigationBarBackgroundColor: '#fff',
     navigationBarTitleText: 'WeChat',
     navigationBarTextStyle: 'black'
-  }
+  },
+  usingComponents: Object.assign(useGlobalIconFont()),
 })

@@ -140,16 +140,15 @@ export default function ShelterListPage({ onNavigate }: ShelterListPageProps) {
     <View className="pb-20 bg-[#fafaf9] min-h-screen">
       {/* Header with gradient - 微信小程序建议使用线性渐变背景图或自定义组件实现渐变 */}
       <View className="bg-gradient-to-br from-orange-600 to-orange-300 px-4 pt-8 pb-6 rounded-3xl">
-        <Text className="text-[#ffffff] text-2xl mb-4">救助站列表</Text>
+        <Text className="text-[#ffffff] text-2xl">救助站列表</Text>
         
         {/* Search Bar */}
         <View className="relative">
-          <Text className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#78716c]">🔍</Text>
           <Input
             placeholder="搜索救助站名称或地址..."
             value={searchQuery}
             onInput={(e) => setSearchQuery(e.detail.value)}
-            className="pl-10 bg-[#ffffff] border-0 rounded-xl h-11"
+            className="pl-4 mt-4 bg-[#ffffff] border-0 rounded-xl h-11"
           />
         </View>
       </View>
@@ -170,7 +169,7 @@ export default function ShelterListPage({ onNavigate }: ShelterListPageProps) {
             }}
           >
             <FontAwesome family='solid' name='map' color='orange' size={16} />
-            <Text className='ml-2'>距离最近</Text>
+            <Text className='ml-1'>距离最近</Text>
           </Button>
         </View>
         
@@ -191,6 +190,7 @@ export default function ShelterListPage({ onNavigate }: ShelterListPageProps) {
                       src={shelter.image}
                       alt={shelter.name}
                       className="w-full h-full object-cover"
+                      mode='aspectFill'
                     />
                   </View>
                   

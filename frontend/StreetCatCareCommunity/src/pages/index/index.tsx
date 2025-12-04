@@ -19,7 +19,7 @@ export default function Index () {
     console.log('Clicked cat:', catId)
     useCatStore.getState().setSelectedCatId(catId);
     // 跳转到详情页
-    navigateTo({url: "/pages/catDetails/catDetails"})
+    navigateTo({url: "/subpackages/catPages/pages/catDetails/catDetails"})
   }
 
   // 页面监听路由变化
@@ -154,7 +154,7 @@ export default function Index () {
         <View className='grid grid-cols-2 gap-3'>
           <Button
             className='w-full h-20 bg-gradient-to-br from-orange-300 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white rounded-2xl shadow-sm'
-            onClick={() => redirectTo({url: "/pages/cats"})}
+            onClick={() => redirectTo({url: "/subpackages/catPages/pages/cats/cats"})}
           >
             <View className='flex flex-col items-center gap-2'>
               <FontAwesome family='solid' name='cat' color='black' className='w-6 h-6'></FontAwesome>
@@ -164,7 +164,7 @@ export default function Index () {
 
           <Button
             className='w-full h-20 bg-gradient-to-br from-orange-300 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white rounded-2xl shadow-sm'
-            onClick={() => redirectTo({url: "/pages/cats"})}
+            onClick={() => redirectTo({url: "/subpackages/catPages/pages/cats/cats"})}
           >
             <View className='flex flex-col items-center gap-2'>
               <FontAwesome family='solid' name='hand-holding-heart' color='black' className='w-6 h-6'></FontAwesome>

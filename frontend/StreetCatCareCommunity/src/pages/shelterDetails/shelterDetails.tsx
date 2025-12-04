@@ -65,6 +65,10 @@ export default function ShelterDetailPage({ data, onNavigate }: ShelterDetailPag
     });
   };
 
+  const handleCatClick = () => {
+    navigateTo({url: "/pages/cats/cats" });
+  };
+
   return (
     <View className="min-h-screen bg-[#fafaf9] pb-6">
       {/* Header Image */}
@@ -115,7 +119,7 @@ export default function ShelterDetailPage({ data, onNavigate }: ShelterDetailPag
           <Button
             className="w-full h-16 bg-gradient-to-br from-[#ff8c42] to-[#fb923c] hover:from-[#fb923c] hover:to-[#f97316] text-white rounded-2xl shadow-sm"
             // onClick={() => onNavigate('cats', { shelterId: data.id, shelterName: data.name })}
-            onClick={() => navigateTo({url: "/pages/cats/cats"})}
+            onClick={() => handleCatClick()}
           >
             <View className="flex flex-col items-center gap-1.5">
               <FontAwesome family='solid' name='paw' ></FontAwesome>

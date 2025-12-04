@@ -40,6 +40,7 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       '@/utils': path.resolve(__dirname, '..', 'src/utils'),
       '@/api': path.resolve(__dirname, '..', 'src/services/api'),
       '@/apiTypes': path.resolve(__dirname, '..', 'src/services/types'),
+      '@/icons': path.resolve(__dirname, '..', 'src/components/iconfont'),
     },
     framework: 'react',
     compiler: {
