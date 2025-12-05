@@ -1,6 +1,5 @@
 package com.streetCat.vo.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,6 +21,8 @@ public class ShelterSaveRequest {
     String licenseNumber;
     @NotBlank(message = "管理者Id不能为空")
     String managerId;
+    @NotBlank(message = "救护站图片不能为空")
+    String avatar;
     int capacity;
     @Data
     @NoArgsConstructor      // 必须

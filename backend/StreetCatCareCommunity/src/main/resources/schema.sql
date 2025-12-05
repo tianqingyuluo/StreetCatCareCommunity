@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS shelters (
     status ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
     manager_id BIGINT NOT NULL COMMENT '救助站管理员id',
     capacity INT NOT NULL COMMENT '猫最大容量',
+    avatar VARCHAR(180) NOT NULL COMMENT '救护站图片',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     SPATIAL INDEX idx_shelter_location (location),
@@ -177,7 +178,7 @@ CREATE TABLE IF NOT EXISTS shelter_staff (
     INDEX idx_shelter_status (shelter_id, hire_status),
     INDEX idx_hire_status (hire_status),
     FOREIGN KEY (shelter_id) REFERENCES shelters(id) ON DELETE RESTRICT,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES sys_admin(id) ON DELETE CASCADE
     ) COMMENT '救助站员工表';
 
 CREATE TABLE IF NOT EXISTS sys_admin (

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.streetCat.dao.StaffMapper">
+
+    <resultMap id="BaseResultMap" type="com.streetCat.pojo.Staff">
+
+    </resultMap>
+
+    <select id="selectStaffsByShelterId" resultMap="BaseResultMap">
+        SELECT *
+        FROM shelter_staff
+        <where>
+            <if test="shelterId != null and shelterId != ''">
+                AND shelter_id = #{shelterId}
+            </if>
+        </where>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <update id="patchStaff" parameterType="Map">
+        UPDATE shelter_staff
+        <set>
+            <if test="updates.shelterId != null">shelter_id = #{updates.shelterId},</if>
+            <if test="updates.userId != null">user_id = #{updates.userId},</if>
+            <if test="updates.realName != null">real_name = #{updates.realName},</if>
+            <if test="updates.phone != null">phone = #{updates.phone},</if>
+            <if test="updates.email != null">email = #{updates.email},</if>
+            <if test="updates.hireStatus != null">hire_status = #{updates.hireStatus},</if>
+            <if test="updates.hiredAt != null">hired_at = #{updates.hiredAt},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+</mapper>

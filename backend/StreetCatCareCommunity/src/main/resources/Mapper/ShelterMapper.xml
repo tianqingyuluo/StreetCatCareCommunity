@@ -9,17 +9,19 @@
         <result column="location" property="location" jdbcType="BLOB"/>
     </resultMap>
 
-    <select id="getSheltersByKeyword" resultMap="BaseResultMap">
+    <select id="selectSheltersByKeyword" resultMap="BaseResultMap">
         SELECT *,
         ST_AsText(location) AS stringLocation
         FROM shelters
-        <if test="status != null and status != ''">
-            WHERE status = #{status}
-        </if>
-        <if test="keyword != null and keyword != ''">
-            AND (name LIKE CONCAT('%', #{keyword}, '%')
-            OR address LIKE CONCAT('%', #{keyword}, '%'))
-        </if>
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (name LIKE CONCAT('%', #{keyword}, '%')
+                OR address LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
     </select>
 
     <update id="updateShelter" parameterType="com.streetCat.pojo.Shelter">

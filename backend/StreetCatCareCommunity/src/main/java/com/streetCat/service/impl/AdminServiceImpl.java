@@ -8,8 +8,10 @@ import com.streetCat.utils.JwtUtil;
 import com.streetCat.utils.PasswordGeneratorUtil;
 import com.streetCat.utils.R;
 import com.streetCat.utils.RandomUtil;
+import com.streetCat.vo.request.UpdateAdminRequest;
 import com.streetCat.vo.request.Web_AdminLoginRequest;
 import com.streetCat.vo.request.Web_AdminRegisterRequest;
+import com.streetCat.vo.response.AdminResponse;
 import com.streetCat.vo.response.Web_LoginResponse;
 import com.streetCat.vo.response.Web_RegisterResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,7 @@ public class AdminServiceImpl implements AdminService {
         if(adminMapper.existsByPhone(req.getPhone())){
             return R.fail(BizCode.DUPLICATE_RESOURCE);
         }
-        String password = PasswordGeneratorUtil.random(8);
+        String password = PasswordGeneratorUtil.random(6);
         Admin admin = Admin
                 .builder()
                 .id(String.valueOf(RandomUtil.nextId()))
@@ -59,8 +61,36 @@ public class AdminServiceImpl implements AdminService {
             BeanUtils.copyProperties(admin, info);
             web_loginResponse.setAdminInfo(info);
             web_loginResponse.setAccessToken(accessToken);
-            web_loginResponse.setExpiresIn("7200");     //返回原密码
+            web_loginResponse.setExpiresIn("7200");
             return R.ok(web_loginResponse);
         }
+    }
+
+    @Override
+    public R<String> updatePassword(String id,String oldPassword, String newPassword) {
+        String password = adminMapper.getPasswordById(id);
+        if(!passwordEncoder.matches(oldPassword,password)){
+            return R.fail(BizCode.AUTH_FAIL);
+        }
+        String EncodeNewPassword = passwordEncoder.encode(newPassword);
+        adminMapper.setPassword(id,EncodeNewPassword);
+        return R.ok(null);
+    }
+
+    @Override
+    public R<AdminResponse> updateAdmin(String id, UpdateAdminRequest req,String adminId) {
+        if(!adminMapper.getRoleById(id).equals("SYSTEM_ADMIN")&&!req.getRole().isEmpty()){
+            return R.fail(BizCode.FORBIDDEN);
+        }
+        if((adminMapper.getRoleById(id).equals("SYSTEM_ADMIN")&&!adminMapper.getRoleById(adminId).equals("SYSTEM_ADMIN"))||(adminId.equals(id))){
+            Admin admin = new Admin();
+            BeanUtils.copyProperties(req, admin);
+            adminMapper.patchAdmin(adminId,admin);
+            AdminResponse adminResponse = new AdminResponse();
+            admin = adminMapper.getById(adminId);
+            BeanUtils.copyProperties(admin,adminResponse);
+            return R.ok(adminResponse);
+        }
+        return R.fail(BizCode.FORBIDDEN);
     }
 }
