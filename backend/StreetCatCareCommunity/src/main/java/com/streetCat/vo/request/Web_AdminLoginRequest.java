@@ -11,6 +11,6 @@ public class Web_AdminLoginRequest {
     private String phone;
 
     @NotBlank(message = "密码不能为空")
-    @Pattern(regexp = "^[A-Za-z0-9]{8}$", message = "密码格式或位数不正确")
+    @Pattern(regexp = "^[A-Za-z0-9]{6,20}$", message = "密码格式或位数不正确")
     private String password;
 }

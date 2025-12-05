@@ -15,6 +15,7 @@ public class ShelterResponse {
     private String description;
     private String licenseNumber;
     private String managerId;
+    private String avatar;
     private int capacity;
     @Data
     @NoArgsConstructor      // 必须
@@ -28,4 +29,5 @@ public class ShelterResponse {
     private String updatedAt;
     private Double distance;
     private int currentCatNumber;
+    private String status;
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.streetCat.dao.AdminMapper">
+    <update id="patchAdmin" parameterType="com.streetCat.pojo.Admin">
+        UPDATE sys_admin
+        <set>
+            <if test="admin.phone != null">phone = #{admin.phone},</if>
+            <if test="admin.realName != null">real_name = #{admin.realName},</if>
+            <if test="admin.role != null">role = #{admin.role},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+</mapper>

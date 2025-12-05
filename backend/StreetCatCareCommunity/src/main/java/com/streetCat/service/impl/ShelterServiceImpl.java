@@ -32,7 +32,10 @@ public class ShelterServiceImpl implements ShelterService {
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
     @Override
-    public R<ShelterResponse> saveShelter(ShelterSaveRequest request) {
+    public R<ShelterResponse> saveShelter(String userId,ShelterSaveRequest request) {
+        if(!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+            return R.fail(BizCode.FORBIDDEN);
+        }
         if(shelterMapper.existsByLicenseNumber(request.getLicenseNumber())){
             return R.fail(BizCode.DUPLICATE_RESOURCE);
         }
@@ -40,7 +43,7 @@ public class ShelterServiceImpl implements ShelterService {
         request.getLocation().getLat()<-90 || request.getLocation().getLat()>90){
             return R.fail(BizCode.INVALID_DATA);
         }
-        else if(!adminMapper.existsById(request.getManagerId())){
+        if(!adminMapper.existsById(request.getManagerId())){
             return R.fail(BizCode.UNFOUND);
         }
         Shelter shelter = new Shelter();
@@ -58,11 +61,14 @@ public class ShelterServiceImpl implements ShelterService {
     }
 
     @Override
-    public R<List<ShelterResponse>> getShelters(String keyword, String status, Double lat, Double lng) {
+    public R<List<ShelterResponse>> getShelters(String userId,String keyword, String status, Double lat, Double lng) {
+        if(!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+            return R.fail(BizCode.FORBIDDEN);
+        }
         if(lng<-180 || lng>180|| lat < -90 || lat>90){
             return R.fail(BizCode.INVALID_DATA);
         }
-        List<Shelter> shelters = shelterMapper.getSheltersByKeyword(keyword,status);
+        List<Shelter> shelters = shelterMapper.selectSheltersByKeyword(keyword,status);
         List<ShelterResponse> shelterResponseList = new ArrayList<>();
         for (Shelter shelter : shelters) {
             String wkt = shelter.getStringLocation();
@@ -78,8 +84,11 @@ public class ShelterServiceImpl implements ShelterService {
     }
 
     @Override
-    public R<List<ShelterResponse>> getShelters(String keyword, String status) {
-        List<Shelter> shelters = shelterMapper.getSheltersByKeyword(keyword,status);
+    public R<List<ShelterResponse>> getShelters(String userId,String keyword, String status) {
+        if(!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+            return R.fail(BizCode.FORBIDDEN);
+        }
+        List<Shelter> shelters = shelterMapper.selectSheltersByKeyword(keyword,status);
         List<ShelterResponse> shelterResponseList = new ArrayList<>();
         for (Shelter shelter : shelters) {
             String wkt = shelter.getStringLocation();
@@ -94,7 +103,10 @@ public class ShelterServiceImpl implements ShelterService {
     }
 
     @Override
-    public R<ShelterResponse> getShelter(String id) {
+    public R<ShelterResponse> getShelter(String userId,String id) {
+        if((!adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,id))||!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+            return R.fail(BizCode.FORBIDDEN);
+        }
         if(!shelterMapper.existsById(id)){
             return R.fail(BizCode.UNFOUND);
         }
@@ -109,24 +121,30 @@ public class ShelterServiceImpl implements ShelterService {
     }
 
     @Override
-    public R<ShelterResponse> updateShelter(String id,ShelterSaveRequest request) {
-        if(shelterMapper.existsById(id)){
-            Shelter shelter = new Shelter();
-            BeanUtils.copyProperties(request, shelter, "location");
-            shelter.setLocation(convert(request.getLocation()));
-            shelterMapper.updateShelter(id,shelter);
-            shelter = shelterMapper.selectShelterById(id);
-            ShelterResponse shelterResponse = new ShelterResponse();
-            BeanUtils.copyProperties(shelter, shelterResponse);
-            shelterResponse.setLocation(new ShelterResponse.Location(shelter.getLocation().getX(),  shelter.getLocation().getY()));
-            shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber());
-            return  R.ok(shelterResponse);
+    public R<ShelterResponse> updateShelter(String userId,String id,ShelterSaveRequest request) {
+        if((!adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,id))||!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+            return R.fail(BizCode.FORBIDDEN);
         }
-        return R.fail(BizCode.UNFOUND);
+        if(!shelterMapper.existsById(id)){
+            return R.fail(BizCode.UNFOUND);
+        }
+        Shelter shelter = new Shelter();
+        BeanUtils.copyProperties(request, shelter, "location");
+        shelter.setLocation(convert(request.getLocation()));
+        shelterMapper.updateShelter(id,shelter);
+        shelter = shelterMapper.selectShelterById(id);
+        ShelterResponse shelterResponse = new ShelterResponse();
+        BeanUtils.copyProperties(shelter, shelterResponse);
+        shelterResponse.setLocation(new ShelterResponse.Location(shelter.getLocation().getX(),  shelter.getLocation().getY()));
+        shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber());
+        return R.ok(shelterResponse);
     }
 
     @Override
-    public R<Void> deleteShelter(String id) {
+    public R<Void> deleteShelter(String userId,String id) {
+        if(!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+            return R.fail(BizCode.FORBIDDEN);
+        }
         if(shelterMapper.existsById(id)){
             shelterMapper.deleteShelter(id);
             return R.delete_ok();

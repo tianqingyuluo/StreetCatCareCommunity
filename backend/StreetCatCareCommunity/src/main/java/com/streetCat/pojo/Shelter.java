@@ -25,4 +25,6 @@ public class Shelter {
     int capacity;
     String createdAt;
     String updatedAt;
+    String status;
+    String avatar;
 }
