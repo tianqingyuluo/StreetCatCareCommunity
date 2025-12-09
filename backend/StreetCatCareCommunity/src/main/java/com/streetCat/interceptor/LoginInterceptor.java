@@ -18,7 +18,9 @@ public class LoginInterceptor implements HandlerInterceptor {
     private static final String[] WHITE_LIST = {
             "/api/v1/auth/login-web",
             "/api/v1/admin/create-account",
-            "/api/v1/auth/login-wechat"
+            "/api/v1/auth/login-wechat",
+            "/css/**", "/js/**", "/error",
+            "api/v1/admin/**"
     };
 
     @Override

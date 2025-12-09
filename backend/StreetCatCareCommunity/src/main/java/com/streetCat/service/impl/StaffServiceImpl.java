@@ -27,7 +27,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public R<StaffResponse> staffSaveRequest(String userId,StaffSaveRequest staffSaveRequest) {
-        if((!adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,staffSaveRequest.getShelterId()))||!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+        if(!(adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,staffSaveRequest.getShelterId())||adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN"))){
             return R.fail(BizCode.FORBIDDEN);
         }
         if(!adminMapper.existsById(staffSaveRequest.getUserId()))
@@ -58,7 +58,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public R<Map<String, Object>> getStaffs(String userId,String shelterId, int page, int size) {
-        if((!adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,shelterId))||!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+        if(!(adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,shelterId)||adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN"))){
             return R.fail(BizCode.FORBIDDEN);
         }
         if(!shelterMapper.existsById(shelterId)){
@@ -90,7 +90,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public R<Void> patchStaff(String userId,String id, Map<String,String> map) {
         String shelterId = staffMapper.selectShelterIdByStaffId(id);
-        if((!adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,shelterId))||!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+        if(!(adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,shelterId)||adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN"))){
             return R.fail(BizCode.FORBIDDEN);
         }
         if(staffMapper.existsById(id)){
@@ -103,7 +103,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public R<Void> deleteStaff(String userId,String id) {
         String shelterId = staffMapper.selectShelterIdByStaffId(id);
-        if((!adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,shelterId))||!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+        if(!(adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,shelterId)||adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN"))){
             return R.fail(BizCode.FORBIDDEN);
         }
         if(staffMapper.existsById(id)){
