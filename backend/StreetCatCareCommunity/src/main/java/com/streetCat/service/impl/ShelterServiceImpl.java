@@ -122,7 +122,7 @@ public class ShelterServiceImpl implements ShelterService {
 
     @Override
     public R<ShelterResponse> updateShelter(String userId,String id,ShelterSaveRequest request) {
-        if(!(adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,id))||!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
+        if(!(adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,id))&&!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
             return R.fail(BizCode.FORBIDDEN);
         }
         if(!shelterMapper.existsById(id)){
