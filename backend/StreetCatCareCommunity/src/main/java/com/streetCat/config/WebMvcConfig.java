@@ -23,7 +23,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOriginPatterns("*")   // 生产环境改成具体域名
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
@@ -37,7 +37,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/v1/auth/login-web",
                         "/api/v1/admin/create-account",
                         "/api/v1/auth/login-wechat",
-                        "/css/**", "/js/**", "/error"
+                        "/css/**", "/js/**", "/error",
+                        "api/v1/admin/**"
+
                 );
     }
 

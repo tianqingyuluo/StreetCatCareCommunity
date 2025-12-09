@@ -16,7 +16,18 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_role_status (status),
     SPATIAL INDEX idx_home_loc (home_location)
     ) COMMENT '用户信息表';
-
+CREATE TABLE IF NOT EXISTS sys_admin (
+                                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                         phone VARCHAR(20)  NOT NULL COMMENT '登录手机号',
+                                         password CHAR(60)     NOT NULL COMMENT 'bcrypt/argon2 等哈希后的密码',
+                                         role ENUM('SHELTER_MEMBER','SHELTER_MANAGER','SYSTEM_ADMIN') DEFAULT 'SYSTEM_ADMIN',
+                                         real_name VARCHAR(50)  COMMENT '姓名',
+                                         login_fail TINYINT UNSIGNED DEFAULT 0 COMMENT '连续登录失败次数',
+                                         last_login_at DATETIME COMMENT '最后登录时间',
+                                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                         UNIQUE KEY uk_phone (phone)
+) COMMENT='系统后台管理员账号';
 CREATE TABLE IF NOT EXISTS shelters (
                                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                         name VARCHAR(200) NOT NULL COMMENT '救助站名称',
@@ -181,18 +192,7 @@ CREATE TABLE IF NOT EXISTS shelter_staff (
     FOREIGN KEY (user_id) REFERENCES sys_admin(id) ON DELETE CASCADE
     ) COMMENT '救助站员工表';
 
-CREATE TABLE IF NOT EXISTS sys_admin (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    phone VARCHAR(20)  NOT NULL COMMENT '登录手机号',
-    password CHAR(60)     NOT NULL COMMENT 'bcrypt/argon2 等哈希后的密码',
-    role ENUM('SHELTER_MEMBER','SHELTER_MANAGER','SYSTEM_ADMIN') DEFAULT 'SYSTEM_ADMIN',
-    real_name VARCHAR(50)  COMMENT '姓名',
-    login_fail TINYINT UNSIGNED DEFAULT 0 COMMENT '连续登录失败次数',
-    last_login_at DATETIME COMMENT '最后登录时间',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uk_phone (phone)
-    ) COMMENT='系统后台管理员账号';
+
 CREATE TABLE IF NOT EXISTS likes (
                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
                        user_id BIGINT NOT NULL,
