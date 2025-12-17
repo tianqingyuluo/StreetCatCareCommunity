@@ -3,6 +3,7 @@ import com.streetCat.dao.PostMapper;
 import com.streetCat.pojo.Post;
 import com.streetCat.pojo.PostWithUser;
 import com.streetCat.service.PostService;
+import com.streetCat.utils.BusinessException;
 import com.streetCat.utils.RandomUtil;
 import com.streetCat.vo.request.CreateNewPostRequest;
 import com.streetCat.vo.request.UpdatePostStatusRequest;
@@ -62,6 +63,9 @@ public class PostServiceImpl implements PostService {
         if (!postmapper.isSysAdmin(userid)) {
             throw new RuntimeException("无权限操作");
         }
+        if (postmapper.getPostById(Long.valueOf(id)) == null) {
+            throw new BusinessException("没有对应的帖子");
+        }
         postmapper.updatePostStatus(id,status,remark);
     }
 
@@ -77,6 +81,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post updatePost(String id, String userId, CreateNewPostRequest postSaveReq) {
+        if (postmapper.getPostById(Long.valueOf(id)) == null) {
+            throw new BusinessException("没有对应的帖子");
+        }
         postmapper.updatePost(id,userId,postSaveReq);
         return postmapper.getPostById(Long.valueOf(id));
     }
@@ -93,11 +100,17 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void updatePostTopStatus(String id, Boolean isTop) {
+        if (postmapper.getPostById(Long.valueOf(id)) == null) {
+            throw new BusinessException("没有对应的帖子");
+        }
         postmapper.updatePostTopStatus(id,isTop);
     }
 
     @Override
     public void updatePostEliteStatus(String id, Boolean isElite) {
+        if (postmapper.getPostById(Long.valueOf(id)) == null) {
+            throw new BusinessException("没有对应的帖子");
+        }
         postmapper.updatePostEliteStatus(id,isElite);
     }
 
