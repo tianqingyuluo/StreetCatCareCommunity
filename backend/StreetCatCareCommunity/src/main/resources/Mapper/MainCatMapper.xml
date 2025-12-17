@@ -5,32 +5,49 @@
 
 <mapper namespace="com.streetCat.dao.MainCatMapper">
 
-    <!-- 1. 插入：把 CatSaveRequest 所有字段落库 -->
     <insert id="insertCat" useGeneratedKeys="false" keyProperty="id">
-        INSERT INTO stray_cats (
-        id, name, breed, gender, age_months,
-        health_status, description, photos,
-        is_neutered, vaccination_status, status,
-        shelter_id, created_by,
-        like_count, comment_count, view_count, favorite_count,
-        created_at, updated_at
-        ) VALUES (
-        #{id},
-        #{req.name},
-        #{req.breed},
-        #{req.gender},
-        #{req.ageMonths},
-        #{req.healthStatus},
-        #{req.description},
-        #{req.photos},
-        #{req.isNeutered},
-        #{req.vaccinationStatus},
-        #{req.status},
-        #{req.shelterId},
-        #{req.createdBy},
-        0, 0, 0, 0,
-        NOW(), NOW()
-        )
+        INSERT INTO stray_cats
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="req.name != null and req.name != ''">name,</if>
+            <if test="req.breed != null and req.breed != ''">breed,</if>
+            <if test="req.gender != null">gender,</if>
+            <if test="req.ageMonths != null">age_months,</if>
+            <if test="req.healthStatus != null and req.healthStatus != ''">health_status,</if>
+            <if test="req.description != null and req.description != ''">description,</if>
+            <if test="req.photos != null and req.photos != ''">photos,</if>
+            <if test="req.isNeutered != null">is_neutered,</if>
+            <if test="req.vaccinationStatus != null and req.vaccinationStatus != ''">vaccination_status,</if>
+            <if test="req.status != null and req.status != ''">status,</if>
+            <if test="req.shelterId != null">shelter_id,</if>
+            <if test="req.createdBy != null and req.createdBy != ''">created_by,</if>
+
+            like_count,
+            comment_count,
+            view_count,
+            favorite_count,
+            created_at,
+            updated_at
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            #{id},
+            <if test="req.name != null and req.name != ''">#{req.name},</if>
+            <if test="req.breed != null and req.breed != ''">#{req.breed},</if>
+            <if test="req.gender != null">#{req.gender},</if>
+            <if test="req.ageMonths != null">#{req.ageMonths},</if>
+            <if test="req.healthStatus != null and req.healthStatus != ''">#{req.healthStatus},</if>
+            <if test="req.description != null and req.description != ''">#{req.description},</if>
+            <if test="req.photos != null and req.photos != ''">#{req.photos},</if>
+            <if test="req.isNeutered != null">#{req.isNeutered},</if>
+            <if test="req.vaccinationStatus != null and req.vaccinationStatus != ''">#{req.vaccinationStatus},</if>
+            <if test="req.status != null and req.status != ''">#{req.status},</if>
+            <if test="req.shelterId != null">#{req.shelterId},</if>
+            <if test="req.createdBy != null and req.createdBy != ''">#{req.createdBy},</if>
+
+            0, 0, 0, 0,
+            NOW(), NOW()
+        </trim>
     </insert>
     <resultMap id="CatMap" type="com.streetCat.pojo.Cat">
         <id property="id" column="id"/>
@@ -88,7 +105,7 @@
             <if test="req.description != null">description = #{req.description},</if>
             <if test="req.photos != null">photos = #{req.photos},</if>
             <if test="req.isNeutered != null">is_neutered = #{req.isNeutered},</if>
-            <if test="req.vaccinationStatus != null">vaccination_status = #{req.vaccinationStatus},</if>
+            <if test="req.vaccinationStatus != null and req.vaccinationStatus!= ''">vaccination_status = #{req.vaccinationStatus},</if>
             <if test="req.status != null">status = #{req.status},</if>
             <if test="req.shelterId != null">shelter_id = #{req.shelterId},</if>
             updated_at = NOW()

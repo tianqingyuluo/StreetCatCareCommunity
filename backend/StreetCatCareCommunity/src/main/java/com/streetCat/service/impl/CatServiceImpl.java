@@ -30,7 +30,7 @@ public class CatServiceImpl implements CatService {
         if (shelterMapper.selectShelterById(ShelterId)==null){
             throw new BusinessException("不存在的救护站");
         };
-        if (req.getCreatedBy()!=null&&postMapper.getPostById(Long.valueOf(req.getCreatedBy()))==null){
+        if (req.getCreatedBy()!=null && !req.getCreatedBy().isEmpty()&&postMapper.getPostById(Long.valueOf(req.getCreatedBy()))==null){
             throw new BusinessException("不存在的录入帖子");
         }
         Long id = RandomUtil.nextId();
