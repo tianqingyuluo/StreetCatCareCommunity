@@ -1,101 +1,78 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, Textarea, Picker, ScrollView } from '@tarojs/components';
+import { useLoad, useUnload } from '@tarojs/taro';
 import IconFont from '@/icons';
+import { FontAwesome } from 'taro-icons';
 import { Card } from '@/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/ui/avatar';
 import { Button } from '@/ui/button';
 import { ImageWithFallback } from '@/ui/image';
+import { UIComment } from '@/types/ui';
+import { TargetType } from '@/types/api';
+import { useCatStore } from '@/stores/catStore';
+import { useCommentStore } from '@/stores/commentStore';
+import { useLikeStore } from '@/stores/likeStore';
+import { NavigationHelper } from '@/utils/navigation';
 
-interface Comment {
-  id: number;
-  author: {
-    name: string;
-    avatar: string;
-  };
-  content: string;
-  time: string;
-  likes: number;
-  liked: boolean;
-  photos: string[];
-}
-
-interface CatCommentsPageProps {
-  data?: any;
-  onNavigate: (page: string, data?: any) => void;
-  onImageClick?: (images: string[], index: number) => void;
-}
-
-export default function CatCommentsPage({ data, onNavigate, onImageClick }: CatCommentsPageProps) {
-  const cat = data?.cat || { id: 1, name: '小橘' };
+export default function CatCommentsPage() {
+  // 从Store获取数据
+  const { currentTargetId, getSelectedCatForUI, fetchCatDetail } = useCatStore();
+  const { getCommentsForUI, fetchComments, setTarget, clearTarget } = useCommentStore();
   
-  const [comments, setComments] = useState<Comment[]>(data?.comments || [
-    {
-      id: 1,
-      author: {
-        name: '猫咪爱好者',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=10',
-      },
-      content: '小橘真的太可爱了！每次看到它都让人心情变好，希望它能早日找到温暖的家。',
-      time: '3天前',
-      likes: 156,
-      liked: false,
-      photos: [],
-    },
-    {
-      id: 2,
-      author: {
-        name: '志愿者小张',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=11',
-      },
-      content: '已经投喂了好几次，小橘很亲人，适合家庭领养。',
-      time: '5天前',
-      likes: 89,
-      liked: false,
-      photos: [],
-    },
-    {
-      id: 3,
-      author: {
-        name: '铲屎官新手',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=12',
-      },
-      content: '看着真的好心疼，希望能有好心人领养它！',
-      time: '1周前',
-      likes: 67,
-      liked: false,
-      photos: [],
-    },
-    {
-      id: 4,
-      author: {
-        name: '爱心人士',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=13',
-      },
-      content: '今天给小橘送了猫粮和水，它吃得很开心。',
-      time: '2周前',
-      likes: 45,
-      liked: false,
-      photos: [
-        'https://images.unsplash.com/photo-1620921787827-f53dcfb164b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvcmFuZ2UlMjBjYXQlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjA1MTU2Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      ],
-    },
-    {
-      id: 5,
-      author: {
-        name: '猫咪救助者',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=14',
-      },
-      content: '小橘性格温顺，很适合有小孩的家庭领养。',
-      time: '3周前',
-      likes: 38,
-      liked: false,
-      photos: [],
-    },
-  ]);
+  // 从 LikeStore 获取点赞状态
+  const {
+    fetchMyLikes,
+    toggleLike,
+    isLiked,
+    loading: likeLoading
+  } = useLikeStore();
+  
+  const cat = getSelectedCatForUI() || { id: '1', name: '小橘' };
+  
+  // 从Store获取评论数据
+  const commentsFromStore = getCommentsForUI();
+  
+  const [comments, setComments] = useState<UIComment[]>(commentsFromStore);
 
   const [newComment, setNewComment] = useState('');
   const [commentPhotos, setCommentPhotos] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<'time' | 'likes'>('time');
+
+  // 页面加载时获取数据
+  useLoad(() => {
+    if (currentTargetId) {
+      // 设置目标类型和ID
+      setTarget('CAT', currentTargetId);
+      // 获取猫咪详情（如果还没有）
+      if (!cat || cat.id !== currentTargetId) {
+        fetchCatDetail(currentTargetId);
+      }
+      // 获取评论数据
+      fetchComments({ targetType: TargetType.CAT, targetId: currentTargetId });
+      // 获取点赞列表
+      fetchMyLikes();
+    }
+  });
+
+  // 页面卸载时清理
+  useUnload(() => {
+    clearTarget();
+  });
+
+  // 当Store中的评论数据更新时，同步到本地state
+  useEffect(() => {
+    setComments(commentsFromStore);
+  }, [commentsFromStore]);
+  
+  // 当点赞列表更新时，同步评论的点赞状态
+  useEffect(() => {
+    setComments(prevComments => 
+      prevComments.map(comment => ({
+        ...comment,
+        liked: isLiked(comment.id),
+      }))
+    );
+  }, [useLikeStore.getState().likedIds]); // 监听 likedIds 的变化
 
   // Picker 选项
   const sortOptions = [
@@ -103,17 +80,13 @@ export default function CatCommentsPage({ data, onNavigate, onImageClick }: CatC
     { label: '按点赞排序', value: 'likes' }
   ];
 
-  const handleLikeComment = (commentId: number) => {
-    setComments(comments.map(comment => {
-      if (comment.id === commentId) {
-        return {
-          ...comment,
-          liked: !comment.liked,
-          likes: comment.liked ? comment.likes - 1 : comment.likes + 1,
-        };
-      }
-      return comment;
-    }));
+  const handleLikeComment = async (commentId: string) => {
+    // 使用真实的点赞逻辑
+    // 注意：评论点赞使用 POST 类型（因为 TargetType 中没有 COMMENT）
+    // 这是一个临时方案，等后端支持 COMMENT 类型后需要更新
+    await toggleLike(TargetType.POST, commentId);
+    
+    // useEffect 会自动监听 likedIds 的变化并更新评论列表
   };
 
   const handleAddPhoto = () => {
@@ -132,8 +105,8 @@ export default function CatCommentsPage({ data, onNavigate, onImageClick }: CatC
   const handleSubmitComment = () => {
     if (!newComment.trim()) return;
 
-    const newCommentObj: Comment = {
-      id: Date.now(),
+    const newCommentObj: UIComment = {
+      id: String(Date.now()),
       author: {
         name: '当前用户',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user',
@@ -151,9 +124,8 @@ export default function CatCommentsPage({ data, onNavigate, onImageClick }: CatC
   };
 
   const handleImageClick = (images: string[], index: number) => {
-    if (onImageClick) {
-      onImageClick(images, index);
-    }
+    // TODO: 实现图片预览功能
+    console.log('预览图片:', images, index);
   };
 
   const getSortedComments = () => {
@@ -162,23 +134,15 @@ export default function CatCommentsPage({ data, onNavigate, onImageClick }: CatC
       return sorted.sort((a, b) => b.likes - a.likes);
     } else {
       // 按时间排序 - ID越大越新
-      return sorted.sort((a, b) => b.id - a.id);
+      return sorted.sort((a, b) => Number(b.id) - Number(a.id));
     }
   };
 
   return (
     <View className="pb-32 bg-[#fafaf9] min-h-screen">
       {/* Header */}
-      <View className="bg-gradient-to-br from-[#ff8c42] to-amber-500 px-4 pt-8 pb-6 rounded-b-3xl">
+      <View className="bg-gradient-to-br from-orange-600 to-orange-300 px-4 pt-8 pb-6 rounded-3xl">
         <View className="flex flex-row items-center gap-3 mb-4">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="text-white hover:bg-white/20 rounded-full"
-            onClick={() => onNavigate('catDetail', cat)}
-          >
-            <IconFont name="arrow-left" size={20} color="#ffffff" />
-          </Button>
           <Text className="text-white text-2xl font-medium">{cat.name} 的评论</Text>
         </View>
         
@@ -203,7 +167,11 @@ export default function CatCommentsPage({ data, onNavigate, onImageClick }: CatC
       {/* Comments List */}
       <ScrollView scrollY className="px-4 py-6">
         <View className="space-y-4">
-          {getSortedComments().map((comment) => (
+          {getSortedComments().map((comment) => {
+            // 检查当前评论是否已点赞
+            const commentLiked = isLiked(comment.id);
+            
+            return (
             <Card key={comment.id} className="p-4 bg-[#ffffff]">
               <View className="flex flex-row gap-3">
                 <Avatar className="flex-shrink-0">
@@ -239,23 +207,24 @@ export default function CatCommentsPage({ data, onNavigate, onImageClick }: CatC
                     </View>
                   )}
                   
-                  <View
+                  {/* <View
                     onClick={() => handleLikeComment(comment.id)}
                     className="flex flex-row items-center gap-1 active:opacity-60 transition-opacity"
                   >
                     <IconFont 
-                      name="thumbs-up" 
-                      size={16} 
-                      color={comment.liked ? '#ff8c42' : '#78716c'} 
+                      name="heart" 
+                      size={32} 
+                      color={commentLiked ? '#ff8c42' : '#78716c'} 
                     />
-                    <Text className={`text-sm ${comment.liked ? 'text-[#ff8c42]' : 'text-[#78716c]'}`}>
+                    <Text className={`text-sm ${commentLiked ? 'text-[#ff8c42]' : 'text-[#78716c]'}`}>
                       {comment.likes}
                     </Text>
-                  </View>
+                  </View> */}
                 </View>
               </View>
             </Card>
-          ))}
+            );
+          })}
         </View>
       </ScrollView>
 
@@ -290,7 +259,7 @@ export default function CatCommentsPage({ data, onNavigate, onImageClick }: CatC
             disabled={commentPhotos.length >= 3}
             className="flex-shrink-0"
           >
-            <IconFont name="image" size={16} color="#78716c" />
+            <IconFont name="image" size={36} color="#78716c" />
           </Button>
           
           <Textarea
@@ -308,7 +277,7 @@ export default function CatCommentsPage({ data, onNavigate, onImageClick }: CatC
             disabled={!newComment.trim()}
             className="flex-shrink-0 bg-gradient-to-r from-[#ff8c42] to-amber-500"
           >
-            <IconFont name="send" size={16} color="#ffffff" />
+            <FontAwesome family='solid' name='paper-plane' size={20} color='white'></FontAwesome>
           </Button>
         </View>
       </View>

@@ -1,139 +1,29 @@
 import { useState } from 'react';
-import { navigateTo } from '@tarojs/taro';
+import { useLoad } from '@tarojs/taro';
 import { View, Text, Input, Image, } from '@tarojs/components';
 import { Card } from '@/ui/card';
 import { Badge } from '@/ui/badge';
 import { Button } from '@/ui/button';
 import { ImageWithFallback } from '@/ui/image';
 import { FontAwesome } from 'taro-icons';
+import { useShelterStore } from '@/stores/shelterStore';
 
-interface ShelterListPageProps {
-  onNavigate: (page: string, data?: any) => void;
-}
-
-export default function ShelterListPage({ onNavigate }: ShelterListPageProps) {
+export default function ShelterListPage() {
+  const { loading, error, fetchShelters, getSheltersForUI, navigateToShelterDetail } = useShelterStore();
+  const shelters = getSheltersForUI();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const shelters = [
-    {
-      id: '1',
-      name: '朝阳区流浪猫救助中心',
-      contactPerson: '张女士',
-      phone: '010-12345678',
-      email: 'chaoyang@shelter.com',
-      location: {
-        lat: 39.9219,
-        lng: 116.4434
-      },
-      address: '北京市朝阳区建国路88号',
-      description: '专业的流浪猫救助机构，提供医疗救治、绝育手术和领养服务。我们致力于改善流浪猫生存环境，让每一只猫咪都能找到温暖的家。',
-      licenseNumber: 'BJ-CY-2023-001',
-      managerId: 'mgr001',
-      capacity: 50,
-      currentCatNumber: 32,
-      createdAt: '2023-01-15T08:00:00.000Z',
-      updatedAt: '2025-11-15T10:30:00.000Z',
-      distance: 1.2,
-      status: '营业中',
-      image: 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmltYWwlMjBzaGVsdGVyJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTI3NDEyfDA&ixlib=rb-4.1.0&q=80&w=1080'
-    },
-    {
-      id: '2',
-      name: '海淀区宠物救助站',
-      contactPerson: '李先生',
-      phone: '010-87654321',
-      email: 'haidian@shelter.com',
-      location: {
-        lat: 39.9590,
-        lng: 116.2987
-      },
-      address: '北京市海淀区中关村大街123号',
-      description: '海淀区最大的综合性动物救助站，拥有现代化的医疗设施和专业的护理团队。',
-      licenseNumber: 'BJ-HD-2023-002',
-      managerId: 'mgr002',
-      capacity: 80,
-      currentCatNumber: 58,
-      createdAt: '2023-03-20T09:00:00.000Z',
-      updatedAt: '2025-11-15T11:00:00.000Z',
-      distance: 3.5,
-      status: '营业中',
-      image: 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmltYWwlMjBzaGVsdGVyJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTI3NDEyfDA&ixlib=rb-4.1.0&q=80&w=1080'
-    },
-    {
-      id: '3',
-      name: '东城区爱心动物之家',
-      contactPerson: '王女士',
-      phone: '010-23456789',
-      email: 'dongcheng@shelter.com',
-      location: {
-        lat: 39.9289,
-        lng: 116.4163
-      },
-      address: '北京市东城区王府井大街56号',
-      description: '温馨的小型救助站，注重每只猫咪的个性化照顾，提供家庭式寄养环境。',
-      licenseNumber: 'BJ-DC-2023-003',
-      managerId: 'mgr003',
-      capacity: 30,
-      currentCatNumber: 18,
-      createdAt: '2023-05-10T10:00:00.000Z',
-      updatedAt: '2025-11-15T09:45:00.000Z',
-      distance: 2.1,
-      status: '营业中',
-      image: 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmltYWwlMjBzaGVsdGVyJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTI3NDEyfDA&ixlib=rb-4.1.0&q=80&w=1080'
-    },
-    {
-      id: '4',
-      name: '西城区流浪动物保护中心',
-      contactPerson: '赵先生',
-      phone: '010-34567890',
-      email: 'xicheng@shelter.com',
-      location: {
-        lat: 39.9144,
-        lng: 116.3664
-      },
-      address: '北京市西城区西单北大街78号',
-      description: '政府支持的公益性救助机构，免费提供绝育和基础医疗服务。',
-      licenseNumber: 'BJ-XC-2023-004',
-      managerId: 'mgr004',
-      capacity: 60,
-      currentCatNumber: 45,
-      createdAt: '2023-02-28T08:30:00.000Z',
-      updatedAt: '2025-11-15T12:00:00.000Z',
-      distance: 4.8,
-      status: '营业中',
-      image: 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmltYWwlMjBzaGVsdGVyJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTI3NDEyfDA&ixlib=rb-4.1.0&q=80&w=1080'
-    },
-    {
-      id: '5',
-      name: '丰台区猫咪之家救助站',
-      contactPerson: '刘女士',
-      phone: '010-45678901',
-      email: 'fengtai@shelter.com',
-      location: {
-        lat: 39.8586,
-        lng: 116.2865
-      },
-      address: '北京市丰台区丽泽路99号',
-      description: '专注于流浪猫救助的爱心机构，志愿者团队活跃，经常组织领养活动。',
-      licenseNumber: 'BJ-FT-2023-005',
-      managerId: 'mgr005',
-      capacity: 40,
-      currentCatNumber: 25,
-      createdAt: '2023-06-15T09:30:00.000Z',
-      updatedAt: '2025-11-15T10:15:00.000Z',
-      distance: 6.2,
-      status: '营业中',
-      image: 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmltYWwlMjBzaGVsdGVyJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTI3NDEyfDA&ixlib=rb-4.1.0&q=80&w=1080'
-    }
-  ];
+  useLoad(() => {
+    fetchShelters();
+  });
 
   const filteredShelters = shelters.filter(shelter => 
     shelter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     shelter.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleShelterClick = () => {
-    navigateTo({url: '/pages/shelterDetails/shelterDetails'});
+  const handleShelterClick = (shelterId: string) => {
+    navigateToShelterDetail(shelterId);
   }
 
   return (
@@ -173,8 +63,21 @@ export default function ShelterListPage({ onNavigate }: ShelterListPageProps) {
           </Button>
         </View>
         
-        <View className="space-y-3">
-          {filteredShelters.map((shelter) => {
+        {loading && (
+          <View className='text-center py-8'>
+            <Text className='text-gray-500'>加载中...</Text>
+          </View>
+        )}
+
+        {error && (
+          <View className='text-center py-8'>
+            <Text className='text-red-500'>加载失败: {error}</Text>
+          </View>
+        )}
+
+        {!loading && !error && (
+          <View className="space-y-3">
+            {filteredShelters.map((shelter) => {
             const capacityRate = (shelter.currentCatNumber / shelter.capacity) * 100;
             const isFull = capacityRate >= 90;
             
@@ -182,7 +85,7 @@ export default function ShelterListPage({ onNavigate }: ShelterListPageProps) {
               <Card
                 key={shelter.id}
                 className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow bg-[#ffffff]"
-                onClick={() => handleShelterClick()}
+                onClick={() => handleShelterClick(shelter.id)}
               >
                 <View className="flex gap-3 p-4">
                   <View className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
@@ -246,7 +149,8 @@ export default function ShelterListPage({ onNavigate }: ShelterListPageProps) {
               </Card>
             );
           })}
-        </View>
+          </View>
+        )}
       </View>
     </View>
   );

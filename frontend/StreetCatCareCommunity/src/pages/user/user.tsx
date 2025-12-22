@@ -1,65 +1,85 @@
-import React from 'react';
-import { View, Text, Image } from '@tarojs/components';
-import { navigateTo } from '@tarojs/taro';
+import { View, Text } from '@tarojs/components';
+import { useLoad, useDidShow } from '@tarojs/taro';
 // 保持你的自定义组件导入不变
 import { Card } from '@/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/ui/avatar';
 import { Badge } from '@/ui/badge';
 import { FontAwesome } from 'taro-icons'
 import IconFont from '@/icons';
+import { useUserStore } from '@/stores/userStore';
 
-interface ProfilePageProps {
-  onNavigate: (page: string, data?: any) => void;
-}
+export default function ProfilePage() {
+  // 使用 UserStore 获取用户数据和导航方法
+  const { 
+    currentUser,
+    userStats,
+    fetchCurrentUser,
+    navigateToFavorites, 
+    navigateToAdoptions, 
+    navigateToFeedings, 
+    navigateToMyPosts 
+  } = useUserStore();
+  
+  // 用户基本信息（来自登录时的微信授权）
+  // 注意：登录返回的user对象中nickname直接在user上，不在userInfo中
+  const userName = (currentUser as any)?.nickname || currentUser?.userInfo?.nickname || '未登录';
+  const userAvatar = (currentUser as any)?.avatarUrl || currentUser?.userInfo?.avatarUrl || '';
+  const userLevel = 'LV1'; // TODO: 后端暂无等级字段
+  
+  // 统计数据（来自各API）
+  const { favorites, feedings, adoptions, posts } = userStats;
+  const contributions = favorites + feedings + adoptions + posts;
+  
+  // 页面加载时获取统计数据
+  useLoad(() => {
+    fetchCurrentUser();
+  });
 
-export default function ProfilePage({ onNavigate }: ProfilePageProps) {
-  const user = {
-    name: '爱心志愿者',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user',
-    level: 'LV5',
-    contributions: 128,
-  };
+  // 页面显示时刷新数据（tab切换时触发）
+  useDidShow(() => {
+    fetchCurrentUser();
+  });
 
-  // 图标替换为 Emoji
+  // 统计卡片数据
   const stats = [
-    { label: '收藏', value: 12, icon: 'heart', color: 'red' },
-    { label: '投喂', value: 45, icon: 'calendar', color: 'orange' },
-    { label: '申请', value: 3, icon: 'file-alt', color: 'blue' },
-    { label: '积分', value: 880, icon: 'award', color: 'gold' },
+    { label: '收藏', value: favorites, icon: 'heart', color: 'red' },
+    { label: '投喂', value: feedings, icon: 'calendar', color: 'orange' },
+    { label: '申请', value: adoptions, icon: 'file-alt', color: 'blue' },
+    { label: '积分', value: contributions, icon: 'award', color: 'gold' },
   ];
 
   const menuItems = [
     {
       title: '我的收藏',
       icon: 'heart',
-      badge: '12',
-      onClick: () => navigateTo({url: '/subpackages/userPages/pages/favorite/favorite'}),
+      badge: String(favorites),
+      onClick: () => navigateToFavorites(),
     },
     {
       title: '领养申请记录',
       icon: 'file',
-      badge: '3',
-      onClick: () => navigateTo({url: '/subpackages/userPages/pages/adoptionApplication/adoptionApplication'}),
+      badge: String(adoptions),
+      onClick: () => navigateToAdoptions(),
     },
     {
       title: '投喂记录',
       icon: 'calendar',
-      badge: '45',
-      onClick: () => navigateTo({url: '/subpackages/userPages/pages/feedingRecord/feedingRecord'}),
+      badge: String(feedings),
+      onClick: () => navigateToFeedings(),
     },
     {
       title: '我的帖子',
       icon: 'rss',
-      badge: '8',
-      onClick: () => navigateTo({url: '/subpackages/userPages/pages/myPostPage/myPostPage'}),
+      badge: String(posts),
+      onClick: () => navigateToMyPosts(),
     },
   ];
 
   const achievements = [
     { title: '爱心新人', icon: '🌟', earned: true },
-    { title: '投喂达人', icon: '🍖', earned: true },
-    { title: '领养天使', icon: '😇', earned: true },
-    { title: '社区活跃', icon: '🎉', earned: false },
+    { title: '投喂达人', icon: '🍖', earned: feedings >= 10 },
+    { title: '领养天使', icon: '😇', earned: adoptions >= 1 },
+    { title: '社区活跃', icon: '🎉', earned: contributions >= 50 },
   ];
 
   return (
@@ -75,18 +95,18 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
         {/* 用户profile */}
         <View className="flex items-center gap-4">
           <Avatar className="w-20 h-20 border-4 border-white/20">
-            <AvatarImage src={user.avatar} />
-            <AvatarFallback>{user.name[0]}</AvatarFallback>
+            <AvatarImage src={userAvatar} />
+            <AvatarFallback>{userName[0] || '用'}</AvatarFallback>
           </Avatar>
           
           <View className="flex-1">
             <View className="flex items-center gap-2 mb-1">
-              <Text className="text-white text-xl">{user.name}</Text>
+              <Text className="text-white text-xl">{userName}</Text>
               <Badge className="bg-white/20 text-white border-0 text-xs">
-                {user.level}
+                {userLevel}
               </Badge>
             </View>
-            <Text className="text-white/90 text-sm">已贡献 {user.contributions} 次爱心行动</Text>
+            <Text className="text-white/90 text-sm">已贡献 {contributions} 次爱心行动</Text>
           </View>
         </View>
       </View>
@@ -169,7 +189,6 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
       <View className="px-4">
         <Card className="bg-[#ffffff]">
           <View 
-            onClick={() => onNavigate('settings')}
             className="w-full flex items-center justify-between p-4 hover:bg-[#fff5ed]/50 transition-colors rounded-lg"
           >
             <View className="flex items-center gap-3">

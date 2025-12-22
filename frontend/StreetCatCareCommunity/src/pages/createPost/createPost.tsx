@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Taro from '@tarojs/taro';
-import { View, Text } from '@tarojs/components'; // 引入 Taro 基础组件
+import { View, Text } from '@tarojs/components';
 
 // 保持你要求的自定义组件导入不变
 import { Button } from '@/ui/button';
@@ -11,25 +11,83 @@ import { Label } from '@/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { ImageWithFallback } from '@/ui/image';
 import IconFont from '@/icons';
+import { ROUTES } from '@/config/routes';
+import { createPost } from '@/services/api/postService';
+import { uploadImage } from '@/services/api/uploadService';
+import { usePostStore } from '@/stores/postStore';
+import * as API from '@/types/api';
 
-interface CreatePostPageProps {
-  onNavigate: (page: string, data?: any) => void;
-}
+// 从环境变量读取是否使用 Mock 图片
+const USE_MOCK_IMAGES = process.env.TARO_APP_USE_MOCK_IMAGES === 'true';
 
-export default function CreatePostPage({ onNavigate }: CreatePostPageProps) {
+export default function CreatePostPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [postType, setPostType] = useState('讨论贴');
+  const [postType, setPostType] = useState<API.PostType>(API.PostType.DISCUSSION);
   const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  
+  const { fetchPosts } = usePostStore();
 
-  const handleAddImage = () => {
-    // 模拟添加图片
-    const mockImages = [
-      'https://images.unsplash.com/photo-1620921787827-f53dcfb164b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvcmFuZ2UlMjBjYXQlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjA1MTU2Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1704947807029-c75381b64869?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGNhdCUyMGZsdWZmeXxlbnwxfHx8fDE3NjA1MTI4MjF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    ];
-    if (images.length < 9) {
+  const handleAddImage = async () => {
+    if (images.length >= 9) {
+      Taro.showToast({
+        title: '最多只能添加9张图片',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 如果开启了 Mock 模式，使用模拟图片
+    if (USE_MOCK_IMAGES) {
+      const mockImages = [
+        'https://images.unsplash.com/photo-1620921787827-f53dcfb164b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvcmFuZ2UlMjBjYXQlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjA1MTU2Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+        'https://images.unsplash.com/photo-1704947807029-c75381b64869?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGNhdCUyMGZsdWZmeXxlbnwxfHx8fDE3NjA1MTI4MjF8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      ];
       setImages([...images, mockImages[images.length % mockImages.length]]);
+      return;
+    }
+
+    // 真实的图片选择和上传
+    try {
+      const res = await Taro.chooseImage({
+        count: 9 - images.length, // 最多选择剩余可添加的数量
+        sizeType: ['compressed'], // 使用压缩图
+        sourceType: ['album', 'camera'], // 可以从相册选择或拍照
+      });
+
+      if (res.tempFilePaths && res.tempFilePaths.length > 0) {
+        setUploading(true);
+        Taro.showLoading({ title: '上传中...' });
+
+        // 逐个上传图片
+        const uploadedUrls: string[] = [];
+        for (const filePath of res.tempFilePaths) {
+          try {
+            const url = await uploadImage(filePath);
+            uploadedUrls.push(url);
+          } catch (error) {
+            console.error('图片上传失败:', error);
+            Taro.showToast({
+              title: '部分图片上传失败',
+              icon: 'none'
+            });
+          }
+        }
+
+        setImages([...images, ...uploadedUrls]);
+        Taro.hideLoading();
+        setUploading(false);
+      }
+    } catch (error) {
+      console.error('选择图片失败:', error);
+      Taro.hideLoading();
+      setUploading(false);
+      Taro.showToast({
+        title: '选择图片失败',
+        icon: 'none'
+      });
     }
   };
 
@@ -37,20 +95,61 @@ export default function CreatePostPage({ onNavigate }: CreatePostPageProps) {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  const handlePublish = () => {
-    if (title.trim() && content.trim()) {
-      // 替换 alert 为 Taro 的 Toast
+  const handlePublish = async () => {
+    // 验证输入
+    if (!title.trim()) {
       Taro.showToast({
-        title: '帖子发布成功！',
+        title: '请输入标题',
+        icon: 'none'
+      });
+      return;
+    }
+
+    if (!content.trim()) {
+      Taro.showToast({
+        title: '请输入内容',
+        icon: 'none'
+      });
+      return;
+    }
+
+    try {
+      setPublishing(true);
+      Taro.showLoading({ title: '发布中...' });
+
+      // 构建请求数据
+      const postData: API.PostSaveReq = {
+        title: title.trim(),
+        content: content.trim(),
+        postType: postType,
+        images: images.length > 0 ? images : undefined,
+      };
+
+      // 调用 API 创建帖子
+      await createPost(postData);
+
+      Taro.hideLoading();
+      Taro.showToast({
+        title: '发布成功！',
         icon: 'success',
         duration: 2000
       });
-      setTimeout(() => {
-        onNavigate('community');
+
+      // 延迟跳转，让用户看到成功提示
+      setTimeout(async () => {
+        // 重新拉取帖子列表
+        await fetchPosts();
+        
+        // 跳转回社区页面
+        Taro.navigateBack();
       }, 1500);
-    } else {
+
+    } catch (error) {
+      console.error('发布帖子失败:', error);
+      Taro.hideLoading();
+      setPublishing(false);
       Taro.showToast({
-        title: '请输入标题和内容',
+        title: '发布失败，请重试',
         icon: 'none'
       });
     }
@@ -67,9 +166,10 @@ export default function CreatePostPage({ onNavigate }: CreatePostPageProps) {
           
           <Button
             onClick={handlePublish}
+            disabled={publishing || uploading}
             className="bg-[#ffffff] text-[#ff8c42] hover:bg-[#ffffff90] h-10 w-16 rounded-xl"
           >
-            发布
+            {publishing ? '发布中' : '发布'}
           </Button>
         </View>
       </View>
@@ -79,15 +179,14 @@ export default function CreatePostPage({ onNavigate }: CreatePostPageProps) {
         {/* Post Type Selection */}
         <Card className="p-4 mb-4 bg-[#ffffff]">
           <Label className="text-[#252525] mb-2 block">帖子类型</Label>
-          {/* 注意：Select 组件在小程序中可能需要替换为 Taro 的 Picker 组件，这里保持原样 */}
-          <Select value={postType} onValueChange={setPostType}>
+          <Select value={postType} onValueChange={(value) => setPostType(value as API.PostType)}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="选择帖子类型" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="DISCUSSION">讨论贴</SelectItem>
-              <SelectItem value="EXPERIENCE">经验贴</SelectItem>
-              <SelectItem value="HELP">求助帖</SelectItem>
+              <SelectItem value={API.PostType.DISCUSSION}>讨论贴</SelectItem>
+              <SelectItem value={API.PostType.EXPERIENCE}>经验贴</SelectItem>
+              <SelectItem value={API.PostType.HELP}>求助帖</SelectItem>
             </SelectContent>
           </Select>
         </Card>
@@ -97,8 +196,9 @@ export default function CreatePostPage({ onNavigate }: CreatePostPageProps) {
           <Input
             placeholder="输入帖子标题..."
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onInput={(e) => setTitle(e.target.value)}
             className="border-0 p-0 focus-visible:ring-0"
+            maxlength={100}
           />
         </Card>
 
@@ -107,9 +207,10 @@ export default function CreatePostPage({ onNavigate }: CreatePostPageProps) {
           <Textarea
             placeholder="分享你和流浪猫的故事..."
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onInput={(e) => setContent(e.target.value)}
             rows={8}
             className="border-0 p-0 resize-none focus-visible:ring-0"
+            maxlength={2000}
           />
         </Card>
 
@@ -148,11 +249,12 @@ export default function CreatePostPage({ onNavigate }: CreatePostPageProps) {
           <Button
             variant="outline"
             onClick={handleAddImage}
+            disabled={uploading}
             className="w-full h-32 border-dashed"
           >
             <View className="flex flex-col items-center gap-2">
               <IconFont name="image" size={90}/>
-              <Text className="text-[#78716c]">添加图片</Text>
+              <Text className="text-[#78716c]">{uploading ? '上传中...' : '添加图片'}</Text>
               <Text className="text-xs text-[#78716c]">最多9张</Text>
             </View>
           </Button>

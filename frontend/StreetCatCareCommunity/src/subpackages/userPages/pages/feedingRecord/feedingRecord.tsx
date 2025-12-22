@@ -1,67 +1,37 @@
-import React, { useState } from 'react';
 import { View, Text } from '@tarojs/components';
+import { useLoad } from '@tarojs/taro';
 import { Card } from '@/ui/card';
-import { Button } from '@/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/ui/dialog';
-import { Input } from '@/ui/input';
-import { Label } from '@/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
-import { Textarea } from '@/ui/textarea';
 import { ImageWithFallback } from '@/ui/image';
-import { FontAwesome } from 'taro-icons';
+import { useFeedingStore } from '@/stores/feedingStore';
 
-interface FeedingRecordPageProps {
-  onNavigate: (page: string, data?: any) => void;
-}
-
-export default function FeedingRecordPage({ onNavigate }: FeedingRecordPageProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [records, setRecords] = useState([
-    {
-      id: 1,
-      catName: '小橘',
-      catImage: 'https://images.unsplash.com/photo-1620921787827-f53dcfb164b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvcmFuZ2UlMjBjYXQlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjA1MTU2Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      foodType: '猫粮',
-      amount: '200g',
-      location: '朝阳区公园',
-      date: '2025-10-15',
-      time: '08:30',
-      notes: '小橘今天胃口很好',
-    },
-    {
-      id: 2,
-      catName: '小白',
-      catImage: 'https://images.unsplash.com/photo-1704947807029-c75381b64869?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGNhdCUyMGZsdWZmeXxlbnwxfHx8fDE3NjA1MTI4MjF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      foodType: '罐头',
-      amount: '1罐',
-      location: '海淀区小区',
-      date: '2025-10-14',
-      time: '18:00',
-      notes: '',
-    },
-    {
-      id: 3,
-      catName: '虎斑',
-      catImage: 'https://images.unsplash.com/photo-1680178551733-66a544d08a55?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0YWJieSUyMGNhdCUyMHNpdHRpbmd8ZW58MXx8fHwxNzYwNDczNTQ0fDA&ixlib=rb-4.1.0&q=80&w=1080',
-      foodType: '猫粮',
-      amount: '150g',
-      location: '西城区街道',
-      date: '2025-10-13',
-      time: '12:00',
-      notes: '下雨天，猫咪躲在屋檐下',
-    },
-    {
-      id: 4,
-      catName: '小花',
-      catImage: 'https://images.unsplash.com/photo-1669085899780-e4a41f42d3d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHJheSUyMGNhdCUyMGN1dGV8ZW58MXx8fHwxNzYwNTI3MzQ4fDA&ixlib=rb-4.1.0&q=80&w=1080',
-      foodType: '猫粮 + 水',
-      amount: '100g',
-      location: '东城区',
-      date: '2025-10-12',
-      time: '07:30',
-      notes: '',
-    },
-  ]);
+export default function FeedingRecordPage() {
+  
+  // 从 FeedingStore 获取投喂记录数据
+  const { getFeedingsForUI, fetchFeedings, loading, error } = useFeedingStore();
+  const records = getFeedingsForUI();
+  
+  // 页面加载时获取所有投喂记录
+  useLoad(() => {
+    fetchFeedings();
+  });
+  
+  // 显示加载状态
+  if (loading) {
+    return (
+      <View className="pb-20 bg-[#fafaf9] min-h-screen flex items-center justify-center">
+        <Text className="text-[#78716c]">加载中...</Text>
+      </View>
+    );
+  }
+  
+  // 显示错误状态
+  if (error) {
+    return (
+      <View className="pb-20 bg-[#fafaf9] min-h-screen flex items-center justify-center">
+        <Text className="text-red-500">{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="pb-20 bg-[#fafaf9] min-h-screen">
@@ -69,7 +39,9 @@ export default function FeedingRecordPage({ onNavigate }: FeedingRecordPageProps
       <View className="bg-gradient-to-br from-orange-600 to-orange-300 px-4 pt-8 pb-6 rounded-3xl">
         <View className="flex flex-row items-center justify-between mb-4">
           <View className="flex flex-row items-center gap-3">
-            <Text className="text-[#ffffff] text-2xl font-medium">投喂记录</Text>
+            <Text className="text-[#ffffff] text-2xl font-medium">
+              投喂记录
+            </Text>
           </View>
 
           {/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -167,7 +139,6 @@ export default function FeedingRecordPage({ onNavigate }: FeedingRecordPageProps
               <View className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
                 <ImageWithFallback
                   src={record.catImage}
-                  alt={record.catName}
                   className="w-full h-full object-cover"
                 />
               </View>
@@ -214,15 +185,7 @@ export default function FeedingRecordPage({ onNavigate }: FeedingRecordPageProps
           {/* Emoji 替换 Calendar */}
           <Text className="text-6xl mb-4 opacity-40">📅</Text>
           <Text className="block text-[#78716c] mb-2">还没有投喂记录</Text>
-          <Text className="block text-[#78716c] text-sm mb-6">记录你的每一次爱心投喂</Text>
-          <Button
-            onClick={() => setIsDialogOpen(true)}
-            className="bg-[#ff8c42] hover:bg-[#ff8c42]/90 flex flex-row items-center gap-2"
-          >
-            {/* Emoji 替换 Plus */}
-            <Text>➕</Text>
-            <Text>添加投喂记录</Text>
-          </Button>
+          <Text className="block text-[#78716c] text-sm">记录你的每一次爱心投喂</Text>
         </View>
       )}
     </View>

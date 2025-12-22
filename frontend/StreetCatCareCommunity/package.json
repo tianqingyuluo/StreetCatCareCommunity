@@ -30,7 +30,10 @@
     "dev:qq": "npm run build:qq -- --watch",
     "dev:jd": "npm run build:jd -- --watch",
     "dev:harmony-hybrid": "npm run build:harmony-hybrid -- --watch",
-    "postinstall": "weapp-tw patch"
+    "postinstall": "weapp-tw patch",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "browserslist": {
     "development": [
@@ -81,14 +84,17 @@
     "@tarojs/plugin-generator": "4.1.7",
     "@tarojs/vite-runner": "4.1.7",
     "@types/minimatch": "^5",
+    "@types/node": "^25.0.3",
     "@types/react": "^18.0.0",
     "@vitejs/plugin-react": "^4.3.0",
+    "@vitest/ui": "^4.0.16",
     "autoprefixer": "^10.4.21",
     "babel-preset-taro": "4.1.7",
     "eslint": "^8.57.0",
     "eslint-config-taro": "4.1.7",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.4.0",
+    "fast-check": "^4.5.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
     "postcss": "^8.4.38",
@@ -100,6 +106,7 @@
     "terser": "^5.30.4",
     "typescript": "^5.4.5",
     "vite": "^4.2.0",
+    "vitest": "^4.0.16",
     "weapp-tailwindcss": "^4.5.2"
   }
 }

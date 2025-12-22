@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text } from '@tarojs/components';
+import { useLoad } from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 import IconFont from '@/icons';
 import { Card } from '@/ui/card';
 import { Button } from '@/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/ui/avatar';
 import { Badge } from '@/ui/badge';
-import { ImageWithFallback } from '@/ui/image'; // 假设这是通用组件路径，或者保持 ./figma/...
+import { ImageWithFallback } from '@/ui/image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,73 +24,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/ui/alert-dialog';
+import { usePostStore } from '@/stores/postStore';
+import { ROUTES } from '@/config/routes';
 
-interface MyPostsPageProps {
-  onNavigate: (page: string, data?: any) => void;
-}
+export default function MyPostsPage() {
+  const { loading, error, fetchMyPosts, getMyPostsForUI, navigateToPostDetail, deletePost } = usePostStore();
+  const posts = getMyPostsForUI();
+  
+  useLoad(() => {
+    fetchMyPosts();
+  });
 
-export default function MyPostsPage({ onNavigate }: MyPostsPageProps) {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      title: '小橘吃罐头啦',
-      content: '今天在小区又遇到了小橘，给它喂了罐头，吃得可香了！希望它能早日找到温暖的家🏠',
-      images: [
-        'https://images.unsplash.com/photo-1620921787827-f53dcfb164b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvcmFuZ2UlMjBjYXQlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjA1MTU2Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      ],
-      time: '2小时前',
-      likes: 45,
-      comments: 12,
-      postType: 'DISCUSSION',
-      status: 'PUBLISHED',
-      isTop: false,
-      isElite: false,
-    },
-    {
-      id: 2,
-      title: '流浪猫救助经验分享',
-      content: '提醒大家，最近天气转凉，流浪猫咪们需要更多关爱。如果看到流浪猫，请给它们一些食物和水💧',
-      images: [],
-      time: '1天前',
-      likes: 89,
-      comments: 23,
-      postType: 'EXPERIENCE',
-      status: 'PENDING',
-      isTop: false,
-      isElite: false,
-    },
-    {
-      id: 3,
-      title: '领养日活动记录',
-      content: '上周末参加了领养日活动，看到好多可爱的猫咪找到了家，真是太开心了！',
-      images: [
-        'https://images.unsplash.com/photo-1704947807029-c75381b64869?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGNhdCUyMGZsdWZmeXxlbnwxfHx8fDE3NjA1MTI4MjF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-        'https://images.unsplash.com/photo-1680178551733-66a544d08a55?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0YWJieSUyMGNhdCUyMHNpdHRpbmd8ZW58MXx8fHwxNzYwNDczNTQ0fDA&ixlib=rb-4.1.0&q=80&w=1080',
-      ],
-      time: '3天前',
-      likes: 67,
-      comments: 18,
-      postType: 'EXPERIENCE',
-      status: 'PUBLISHED',
-      isTop: false,
-      isElite: true,
-    },
-    {
-      id: 4,
-      title: '求助：如何照顾受伤的流浪猫',
-      content: '在小区发现一只受伤的流浪猫，应该如何处理？',
-      images: [],
-      time: '5天前',
-      likes: 0,
-      comments: 0,
-      postType: 'HELP',
-      status: 'REJECTED',
-      isTop: false,
-      isElite: false,
-    },
-  ]);
-
-  const [deletePostId, setDeletePostId] = useState<number | null>(null);
+  const [deletePostId, setDeletePostId] = useState<string | null>(null);
 
   const user = {
     name: '爱心志愿者',
@@ -128,9 +75,28 @@ export default function MyPostsPage({ onNavigate }: MyPostsPageProps) {
     return typeMap[type] || '讨论贴';
   };
 
-  const handleDeletePost = (postId: number) => {
-    setPosts(posts.filter(post => post.id !== postId));
-    setDeletePostId(null);
+  const handleDeletePost = async (postId: string) => {
+    try {
+      await deletePost(postId);
+      setDeletePostId(null);
+    } catch (error) {
+      console.error('删除帖子失败:', error);
+    }
+  };
+
+  const handlePostClick = (postId: string) => {
+    navigateToPostDetail(postId);
+  };
+
+  const handleCreatePost = async () => {
+    try {
+      await Taro.navigateTo({ url: ROUTES.CREATE_POST });
+    } catch (error) {
+      Taro.showToast({
+        title: '页面跳转失败',
+        icon: 'none'
+      });
+    }
   };
 
   return (
@@ -145,11 +111,27 @@ export default function MyPostsPage({ onNavigate }: MyPostsPageProps) {
 
       {/* Posts List */}
       <View className="px-4 py-4 space-y-4">
-        {posts.map((post) => {
+        {loading && (
+          <View className='text-center py-8'>
+            <Text className='text-gray-500'>加载中...</Text>
+          </View>
+        )}
+
+        {error && (
+          <View className='text-center py-8'>
+            <Text className='text-red-500'>加载失败: {error}</Text>
+          </View>
+        )}
+
+        {!loading && !error && posts.map((post) => {
           const statusInfo = getStatusInfo(post.status);
           
           return (
-            <Card key={post.id} className="p-4 bg-[#ffffff]">
+            <Card 
+              key={post.id} 
+              className="p-4 bg-[#ffffff]"
+              onClick={() => handlePostClick(post.id)}
+            >
               {/* Author Info and Status */}
               <View className="flex items-center justify-between mb-3">
                 <View className="flex items-center gap-3">
@@ -257,19 +239,19 @@ export default function MyPostsPage({ onNavigate }: MyPostsPageProps) {
       </View>
 
       {/* Empty State */}
-      {posts.length === 0 && (
+      {posts.length === 0 && !loading && !error && (
         <View className="px-4 py-16 text-center">
           <View className="mx-auto mb-4 flex justify-center">
             <IconFont name="message-circle" size={80} color="rgba(120, 113, 108, 0.4)" />
           </View>
           <Text className="text-[#78716c] mb-2 block">还没有发布帖子</Text>
           <Text className="text-[#78716c] text-sm mb-6 block">分享你和流浪猫的故事吧</Text>
-          {/* <Button
-            onClick={() => onNavigate('createPost')}
+          <Button
+            onClick={handleCreatePost}
             className="bg-[#ff8c42] hover:bg-[#ff8c42]/90"
           >
             发布帖子
-          </Button> */}
+          </Button>
         </View>
       )}
 
