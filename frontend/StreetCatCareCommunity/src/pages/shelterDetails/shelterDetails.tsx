@@ -1,45 +1,59 @@
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useLoad, useUnload } from '@tarojs/taro';
 import { navigateTo } from '@tarojs/taro';
-import { View, Text, Image, Map, Button as TaroButton } from '@tarojs/components';
+import { View, Text, Map } from '@tarojs/components';
 import { Card } from '@/ui/card';
 import { Button } from '@/ui/button';
 import { Badge } from '@/ui/badge';
 import { Separator } from '@/ui/separator';
 import { ImageWithFallback } from '@/ui/image';
 import { FontAwesome } from 'taro-icons';
+import { useShelterStore } from '@/stores/shelterStore';
+import { useCatStore } from '@/stores/catStore';
 
-interface ShelterDetailPageProps {
-  data: any;
-  onNavigate: (page: string, data?: any) => void;
-}
+export default function ShelterDetailPage() {
+  const { 
+    getSelectedShelterForUI, 
+    currentTargetId, 
+    fetchShelterDetail,
+    clearCurrentTargetId,
+    navigateToCats,
+    loading,
+    error
+  } = useShelterStore();
 
-export default function ShelterDetailPage({ data, onNavigate }: ShelterDetailPageProps) {
-  const router = useRouter();
+  // 在页面加载时获取救助站详情
+  useLoad(() => {
+    if (currentTargetId) {
+      fetchShelterDetail(currentTargetId);
+    }
+  });
 
-  data = data || 
-  {
-    id: '1',
-    name: '朝阳区流浪猫救助中心',
-    contactPerson: '张女士',
-    phone: '010-12345678',
-    email: 'chaoyang@shelter.com',
-    location: {
-      lat: 39.9219,
-      lng: 116.4434
-    },
-    address: '北京市朝阳区建国路88号',
-    description: '专业的流浪猫救助机构，提供医疗救治、绝育手术和领养服务。我们致力于改善流浪猫生存环境，让每一只猫咪都能找到温暖的家。',
-    licenseNumber: 'BJ-CY-2023-001',
-    managerId: 'mgr001',
-    capacity: 50,
-    currentCatNumber: 32,
-    createdAt: '2023-01-15T08:00:00.000Z',
-    updatedAt: '2025-11-15T10:30:00.000Z',
-    distance: 1.2,
-    status: '营业中',
-    image: 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmltYWwlMjBzaGVsdGVyJTIwYnVpbGRpbmd8ZW58MXx8fHwxNzYwNTI3NDEyfDA&ixlib=rb-4.1.0&q=80&w=1080'
-  };
+  // 在页面卸载时清除导航状态
+  useUnload(() => {
+    clearCurrentTargetId();
+  });
 
+  const data = getSelectedShelterForUI();
+
+  // 加载中状态
+  if (loading) {
+    return (
+      <View className="min-h-screen flex items-center justify-center bg-[#fafaf9]">
+        <Text className="text-[#78716c]">加载中...</Text>
+      </View>
+    );
+  }
+
+  // 错误状态
+  if (error) {
+    return (
+      <View className="min-h-screen flex items-center justify-center bg-[#fafaf9]">
+        <Text className="text-[#78716c]">加载失败: {error}</Text>
+      </View>
+    );
+  }
+
+  // 数据不存在
   if (!data) {
     return (
       <View className="min-h-screen flex items-center justify-center bg-[#fafaf9]">
@@ -51,14 +65,6 @@ export default function ShelterDetailPage({ data, onNavigate }: ShelterDetailPag
   const capacityRate = (data.currentCatNumber / data.capacity) * 100;
   const isFull = capacityRate >= 90;
 
-  const handleBack = () => {
-    if (onNavigate) {
-      onNavigate('shelters');
-    } else {
-      Taro.navigateBack();
-    }
-  };
-
   const handleCall = () => {
     Taro.makePhoneCall({
       phoneNumber: data.phone
@@ -66,7 +72,8 @@ export default function ShelterDetailPage({ data, onNavigate }: ShelterDetailPag
   };
 
   const handleCatClick = () => {
-    navigateTo({url: "/pages/cats/cats" });
+    // navigateTo({url: "/pages/cats/cats" });
+    navigateToCats(currentTargetId!)
   };
 
   return (
@@ -75,7 +82,6 @@ export default function ShelterDetailPage({ data, onNavigate }: ShelterDetailPag
       <View className="relative h-56">
         <ImageWithFallback
           src={data.image}
-          alt={data.name}
           className="w-full h-full object-cover"
           mode='aspectFill'
         />
@@ -118,7 +124,6 @@ export default function ShelterDetailPage({ data, onNavigate }: ShelterDetailPag
         <View className="grid grid-cols-2 gap-3">
           <Button
             className="w-full h-16 bg-gradient-to-br from-[#ff8c42] to-[#fb923c] hover:from-[#fb923c] hover:to-[#f97316] text-white rounded-2xl shadow-sm"
-            // onClick={() => onNavigate('cats', { shelterId: data.id, shelterName: data.name })}
             onClick={() => handleCatClick()}
           >
             <View className="flex flex-col items-center gap-1.5">

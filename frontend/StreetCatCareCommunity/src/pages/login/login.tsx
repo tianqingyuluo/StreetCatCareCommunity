@@ -2,10 +2,9 @@ import { Text, Image, Button } from '@tarojs/components'
 import { useLoad, reLaunch, getCurrentInstance } from '@tarojs/taro'
 import { useState } from 'react'
 import { FontAwesome } from 'taro-icons'
-import { useNavigationStore } from '@/stores/navigationStore'
-import { tabRoutes } from '@/utils/navRouteMap'
-import { login as apiLogin } from '@/api/loginService'
-import { loginRequest, loginResponse } from '@/apiTypes/apiTypes'
+import { loginWechat } from '@/services/api/userService'
+import { WechatLoginReq, WechatLoginResp } from '@/types/api'
+import { useUserStore } from '@/stores/userStore'
 
 import Taro from '@tarojs/taro'
 import './login.scss'
@@ -14,29 +13,24 @@ import cover from '../../../public/cover.jpg'
 
 export default function Index () {
   const [code, setCode] = useState('')
-  const { activeTab, showBottomNav, changeTab, setShowBottomNav } = useNavigationStore()
+  const { setCurrentUser } = useUserStore()
 
   // 页面监听路由变化
   useLoad(() => {
     console.log('Page loaded.')
-    const instance = getCurrentInstance()
-    if (instance?.router) {
-      const currentRoute = instance.router.path
-      const shouldShowNav = Object.values(tabRoutes).includes(currentRoute)
-      setShowBottomNav(shouldShowNav)
-      console.log('Current route:', currentRoute, 'Show bottom nav:', shouldShowNav)
-    }
   })
 
   const login = () => Taro.login({
     success: function (res) {
       setCode(res.code || '')
       
-      const loginData: loginRequest = {
+      const wechatLoginReq: WechatLoginReq = {
         code: res.code || ''
       }
-      apiLogin(loginData).then((res: loginResponse) => {
+      loginWechat(wechatLoginReq).then((res: WechatLoginResp) => {
         console.log(res)
+        setCurrentUser(res.user)
+        Taro.setStorageSync('token', res.accessToken)
       })
       
       console.log('登录成功！' + res.code)

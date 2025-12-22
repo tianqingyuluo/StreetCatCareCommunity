@@ -34,6 +34,7 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       }
     },
     alias: {
+      // '@': path.resolve(__dirname, '..', 'src'),
       '@/ui': path.resolve(__dirname, '..', 'src/components/ui'),
       '@/services': path.resolve(__dirname, '..', 'src/services'),
       '@/stores': path.resolve(__dirname, '..', 'src/stores'),
@@ -41,6 +42,8 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       '@/api': path.resolve(__dirname, '..', 'src/services/api'),
       '@/apiTypes': path.resolve(__dirname, '..', 'src/services/types'),
       '@/icons': path.resolve(__dirname, '..', 'src/components/iconfont'),
+      '@/types': path.resolve(__dirname, '..', 'src/types'), 
+      '@/config': path.resolve(__dirname, '..', 'src/config'),
     },
     framework: 'react',
     compiler: {

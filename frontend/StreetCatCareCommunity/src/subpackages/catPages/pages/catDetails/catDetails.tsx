@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
+import Taro, { useLoad, useUnload } from '@tarojs/taro';
 import { Card } from '@/ui/card';
 import { Badge } from '@/ui/badge';
 import { Button } from '@/ui/button';
@@ -12,80 +12,161 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/ui/avatar';
 import { FontAwesome } from 'taro-icons' 
 
 import { useCatStore } from '@/stores/catStore';
-import { navigateTo } from '@tarojs/taro';
+import { useFeedingStore } from '@/stores/feedingStore';
+import { useCommentStore } from '@/stores/commentStore';
+import { useFavoriteStore } from '@/stores/favoriteStore';
+import { ROUTES } from '@/config/routes';
+import { TargetType } from '@/types/api';
 import IconFont from '@/icons';
 
-interface CatDetailPageProps {
-  data: any;
-  onNavigate: (page: string, data?: any) => void;
-}
+export default function CatDetailPage() {
+  // 从 CatStore 获取猫咪数据
+  const { 
+    currentTargetId, 
+    fetchCatDetail, 
+    clearCurrentTargetId,
+    getSelectedCatForUI,
+    loading: catLoading,
+    error: catError
+  } = useCatStore();
+  
+  const cat = getSelectedCatForUI();
 
-export default function CatDetailPage({ data, onNavigate }: CatDetailPageProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const catId = useCatStore((state) => state.selectedCatId);
-  console.log('Selected Cat ID from Store:', catId);
+  // 从 FavoriteStore 获取收藏状态
+  const {
+    fetchFavorites,
+    toggleFavorite,
+    isFavorited,
+    favoriteIds,
+    loading: favoriteLoading
+  } = useFavoriteStore();
+  
+  // 检查当前猫咪是否已收藏
+  const isCollected = currentTargetId ? isFavorited(currentTargetId) : false;
+  
+  console.log('🐱 当前猫咪ID:', currentTargetId, ', 是否收藏:', isCollected, ', 收藏列表:', Array.from(favoriteIds));
 
-  const cat = data || {
-    id: 1,
-    name: '小橘',
-    image: 'https://images.unsplash.com/photo-1620921787827-f53dcfb164b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvcmFuZ2UlMjBjYXQlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjA1MTU2Mzd8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    breed: '中华田园猫',
-    age: '2岁',
-    gender: '公',
-    health: '健康',
-    status: '待领养',
-    location: '朝阳区',
-    likes: 328,
-  };
+  // 从 FeedingStore 获取投喂记录
+  const {
+    getFeedingsForUI,
+    fetchFeedingsByCat,
+    loading: feedingLoading
+  } = useFeedingStore();
+  
+  const feedingRecords = getFeedingsForUI();
 
-  const images = [
-    cat.image,
-    'https://images.unsplash.com/photo-1704947807029-c75381b64869?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGNhdCUyMGZsdWZmeXxlbnwxfHx8fDE3NjA1MTI4MjF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    'https://images.unsplash.com/photo-1680178551733-66a544d08a55?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0YWJieSUyMGNhdCUyMHNpdHRpbmd8ZW58MXx8fHwxNzYwNDczNTQ0fDA&ixlib=rb-4.1.0&q=80&w=1080',
-  ];
+  // 从 CommentStore 获取评论数据
+  const {
+    getCommentsForUI,
+    fetchComments,
+    loading: commentLoading
+  } = useCommentStore();
+  
+  const comments = getCommentsForUI();
 
-  const feedingRecords = [
-    { date: '2025-10-14', feeder: '爱心志愿者A', food: '猫粮', amount: '200g' },
-    { date: '2025-10-13', feeder: '爱心志愿者B', food: '罐头', amount: '1罐' },
-    { date: '2025-10-12', feeder: '爱心志愿者C', food: '猫粮', amount: '150g' },
-  ];
+  // 页面加载时获取所有数据
+  useLoad(() => {
+    if (currentTargetId) {
+      // 获取猫咪详情
+      fetchCatDetail(currentTargetId);
+      
+      // 获取投喂记录
+      fetchFeedingsByCat(currentTargetId);
+      
+      // 获取评论（只获取前3条热门评论）
+      fetchComments({ targetType: TargetType.CAT, targetId: currentTargetId });
+      
+      // 获取收藏列表
+      fetchFavorites('cats');
+    }
+  });
 
-  const topComments = [
-    {
-      id: 1,
-      author: {
-        name: '猫咪爱好者',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=10',
-      },
-      content: '小橘真的太可爱了！每次看到它都让人心情变好，希望它能早日找到温暖的家。',
-      time: '3天前',
-      likes: 156,
-    },
-    {
-      id: 2,
-      author: {
-        name: '志愿者小张',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=11',
-      },
-      content: '已经投喂了好几次，小橘很亲人，适合家庭领养。',
-      time: '5天前',
-      likes: 89,
-    },
-    {
-      id: 3,
-      author: {
-        name: '铲屎官新手',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=12',
-      },
-      content: '看着真的好心疼，希望能有好心人领养它！',
-      time: '1周前',
-      likes: 67,
-    },
-  ];
+  // 页面卸载时清除导航状态
+  useUnload(() => {
+    clearCurrentTargetId();
+  });
 
   const handleCommentsClick = () => {
-    navigateTo({url: '/subpackages/catPages/pages/catComments/catComments'});
+    if (currentTargetId) {
+      Taro.navigateTo({
+        url: ROUTES.CAT_COMMENTS
+      }).catch(() => {
+        Taro.showToast({
+          title: '页面跳转失败',
+          icon: 'none'
+        });
+      });
+    }
   };
+
+  const handleFeedingClick = () => {
+    Taro.navigateTo({
+      url: ROUTES.FEEDING_RECORD
+    }).catch(() => {
+      Taro.showToast({
+        title: '页面跳转失败',
+        icon: 'none'
+      });
+    });
+  };
+
+  const handleAdoptionClick = () => {
+    Taro.navigateTo({
+      url: `${ROUTES.ADOPTION_APPLICATION}?showForm=true`
+    }).catch(() => {
+      Taro.showToast({
+        title: '页面跳转失败',
+        icon: 'none'
+      });
+    });
+  };
+
+  // 处理收藏/取消收藏
+  const handleFavoriteClick = async () => {
+    if (!currentTargetId || favoriteLoading) return;
+    
+    await toggleFavorite(TargetType.CAT, currentTargetId);
+  };
+
+  // 如果正在加载，显示加载状态
+  if (catLoading || feedingLoading || commentLoading) {
+    return (
+      <View className="flex items-center justify-center min-h-screen bg-[#fafaf9]">
+        <Text className="text-[#78716c]">加载中...</Text>
+      </View>
+    );
+  }
+
+  // 如果有错误，显示错误信息
+  if (catError) {
+    return (
+      <View className="flex flex-col items-center justify-center min-h-screen bg-[#fafaf9] px-4">
+        <Text className="text-red-500 mb-4">{catError}</Text>
+        <Button onClick={() => currentTargetId && fetchCatDetail(currentTargetId)}>
+          <Text>重试</Text>
+        </Button>
+      </View>
+    );
+  }
+
+  // 如果没有猫咪数据，显示提示
+  if (!cat) {
+    return (
+      <View className="flex items-center justify-center min-h-screen bg-[#fafaf9]">
+        <Text className="text-[#78716c]">未找到猫咪信息</Text>
+      </View>
+    );
+  }
+
+  // 使用猫咪的实际照片，如果没有则使用默认图片
+  const images = cat.image ? [
+    cat.image
+  ] : [
+    'https://images.unsplash.com/photo-1704947807029-c75381b64869?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGNhdCUyMGZsdWZmeXxlbnwxfHx8fDE3NjA1MTI4MjF8MA&ixlib=rb-4.1.0&q=80&w=1080',
+  ];
+
+  // 只显示前3条热门评论
+  const topComments = comments.slice(0, 3);
 
   return (
     <ScrollView className="pb-20 bg-[#fafaf9] min-h-screen">
@@ -120,30 +201,20 @@ export default function CatDetailPage({ data, onNavigate }: CatDetailPageProps) 
 
         {/* Top Actions */}
         <View className="absolute top-4 left-0 right-0 px-4 flex items-center justify-between z-20">
-          {/* <Button
-            className="bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 rounded-full w-10 h-10"
-            onClick={() => onNavigate('cats')}
-          >
-            <Text className="text-white text-lg">⬅️</Text>
-          </Button> */}
           <View>
             
           </View>
           
           <View className="flex gap-2">
             <Button
-              className="bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 rounded-full w-10 h-10"
-              onClick={() => setIsFavorite(!isFavorite)}
+              className={`bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 rounded-full w-10 h-10 ${favoriteLoading ? 'opacity-50' : ''}`}
+              onClick={handleFavoriteClick}
             >
-              {/* <Text className={`text-lg ${isFavorite ? 'text-red-500' : 'text-white'}`}>
-                {isFavorite ? '❤️' : '🤍'}
-              </Text> */}
-              <FontAwesome family={isFavorite ? 'solid' : 'regular'} name='heart' size={20} color={isFavorite ? 'red' : 'white'}/>
+              <FontAwesome family={isCollected ? 'solid' : 'regular'} name='star' size={20} color={isCollected ? '#fbbf24' : 'white'}/>
             </Button>
             <Button
               className="bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 rounded-full w-10 h-10"
             >
-              {/* <Text className="text-white text-lg">↗️</Text> */}
               <FontAwesome family='solid' name='share-square' size={18} color='white'/>
             </Button>
           </View>
@@ -180,10 +251,10 @@ export default function CatDetailPage({ data, onNavigate }: CatDetailPageProps) 
           
           <View className="text-right">
             <View className="flex items-center gap-1 text-[#ff8c42] flex-row justify-end">
-              <FontAwesome family={isFavorite ? 'solid' : 'regular'} name='heart' size={20} color={isFavorite ? 'red' : 'grey'}/>
+              <FontAwesome family={isCollected ? 'solid' : 'regular'} name='star' size={20} color={isCollected ? '#fbbf24' : 'grey'}/>
               <Text className="text-[#ff8c42]">{cat.likes}</Text>
             </View>
-            <Text className="text-[#78716c] text-sm">人喜欢</Text>
+            <Text className="text-[#78716c] text-sm">人收藏</Text>
           </View>
         </View>
 
@@ -250,8 +321,6 @@ export default function CatDetailPage({ data, onNavigate }: CatDetailPageProps) 
               <Text className="text-[#252525] font-medium text-base">热门评论</Text>
             </View>
             <Button
-              variant="ghost"
-              size="sm"
               className="text-[#ff8c42] hover:bg-[#fff5ed]"
               onClick={() => handleCommentsClick()}
             >
@@ -294,33 +363,39 @@ export default function CatDetailPage({ data, onNavigate }: CatDetailPageProps) 
             <Text className="text-[#141414] font-semibold">近期投喂记录</Text>
             <Button
               className="text-[#ff8c42] hover:bg-[#fff5ed]"
-              onClick={() => onNavigate('feeding')}
+              onClick={handleFeedingClick}
             >
               <Text className="text-[#ff8c42] text-sm">查看全部</Text>
             </Button>
           </View>
           
-          <Card className="p-4 bg-white">
-            <View className="space-y-3">
-              {feedingRecords.map((record, index) => (
-                <View key={index}>
-                  <View className="flex items-center justify-between pb-3 flex-row">
-                    <View className='flex flex-col'>
-                      <Text className="text-[#141414] text-sm mb-1">{record.feeder}</Text>
-                      <Text className="text-[#78716c] text-xs">{record.date}</Text>
+          {feedingRecords.length > 0 ? (
+            <Card className="p-4 bg-white">
+              <View className="space-y-3">
+                {feedingRecords.slice(0, 3).map((record, index) => (
+                  <View key={record.id}>
+                    <View className="flex items-center justify-between pb-3 flex-row">
+                      <View className='flex flex-col'>
+                        <Text className="text-[#141414] text-sm mb-1">{record.catName || '爱心志愿者'}</Text>
+                        <Text className="text-[#78716c] text-xs">{record.date}</Text>
+                      </View>
+                      <View className="text-right flex flex-col">
+                        <Text className="text-[#141414] text-sm">{record.foodType}</Text>
+                        <Text className="text-[#78716c] text-xs">{record.amount}</Text>
+                      </View>
                     </View>
-                    <View className="text-right flex flex-col">
-                      <Text className="text-[#141414] text-sm">{record.food}</Text>
-                      <Text className="text-[#78716c] text-xs">{record.amount}</Text>
-                    </View>
+                    {index < Math.min(feedingRecords.length, 3) - 1 && (
+                      <View className="border-b border-gray-300" />
+                    )}
                   </View>
-                  {index < feedingRecords.length - 1 && (
-                    <View className="border-b border-gray-300" />
-                  )}
-                </View>
-              ))}
-            </View>
-          </Card>
+                ))}
+              </View>
+            </Card>
+          ) : (
+            <Card className="p-4 bg-white">
+              <Text className="text-[#78716c] text-center">暂无投喂记录</Text>
+            </Card>
+          )}
         </View>
 
         {/* Spacer for fixed bottom */}
@@ -332,13 +407,13 @@ export default function CatDetailPage({ data, onNavigate }: CatDetailPageProps) 
         <View className="flex gap-3 max-w-lg mx-auto flex-row">
           <Button
             className="flex-1 h-12 rounded-xl text-[#ff8c42] hover:bg-[#fff5ed] border-[#ff8c42] border-1"
-            onClick={() => onNavigate('feeding')}
+            onClick={handleFeedingClick}
           >
             <Text className="text-[#ff8c42]">记录投喂</Text>
           </Button>
           <Button
             className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#ff8c42] to-amber-500 hover:from-[#ff8c42]/90 hover:to-amber-500/90 text-white"
-            onClick={() => onNavigate('adoption', cat)}
+            onClick={handleAdoptionClick}
           >
             <Text className="text-white">申请领养</Text>
           </Button>
