@@ -50,13 +50,14 @@ public class ShelterServiceImpl implements ShelterService {
         BeanUtils.copyProperties(request, shelter, "location");
         shelter.setLocation(convert(request.getLocation()));
         shelter.setId(String.valueOf(RandomUtil.nextId()));
+        shelter.setStatus("ACTIVE");
         shelterMapper.insert(shelter);
         adminMapper.setShelterManager(request.getManagerId());
         shelter = shelterMapper.selectShelterById(shelter.getId());
         ShelterResponse shelterResponse = new ShelterResponse();
         BeanUtils.copyProperties(shelter, shelterResponse);
         shelterResponse.setLocation(new ShelterResponse.Location(shelter.getLocation().getX(),  shelter.getLocation().getY()));
-        shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber());
+        shelterResponse.setCurrentCatNumber(0);
         return  R.creat_ok(shelterResponse);
     }
 
@@ -76,7 +77,7 @@ public class ShelterServiceImpl implements ShelterService {
             ShelterResponse shelterResponse = new ShelterResponse();
             BeanUtils.copyProperties(shelter, shelterResponse);
             shelterResponse.setLocation(new ShelterResponse.Location(shelter.getLocation().getX(),  shelter.getLocation().getY()));
-            shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber());
+            shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber(shelter.getId()));
             shelterResponseList.add(shelterResponse);
         }
         DistanceUtils.sortAndFillDistance(shelterResponseList,lat,lng);
@@ -85,9 +86,6 @@ public class ShelterServiceImpl implements ShelterService {
 
     @Override
     public R<List<ShelterResponse>> getShelters(String userId,String keyword, String status) {
-        if(!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
-            return R.fail(BizCode.FORBIDDEN);
-        }
         List<Shelter> shelters = shelterMapper.selectSheltersByKeyword(keyword,status);
         List<ShelterResponse> shelterResponseList = new ArrayList<>();
         for (Shelter shelter : shelters) {
@@ -96,7 +94,7 @@ public class ShelterServiceImpl implements ShelterService {
             ShelterResponse shelterResponse = new ShelterResponse();
             BeanUtils.copyProperties(shelter, shelterResponse);
             shelterResponse.setLocation(new ShelterResponse.Location(shelter.getLocation().getX(),  shelter.getLocation().getY()));
-            shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber());
+            shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber(shelter.getId()));
             shelterResponseList.add(shelterResponse);
         }
         return R.ok(shelterResponseList);
@@ -104,9 +102,6 @@ public class ShelterServiceImpl implements ShelterService {
 
     @Override
     public R<ShelterResponse> getShelter(String userId,String id) {
-        if(!(adminMapper.getRoleById(userId).equals("SHELTER_MANAGER")&&shelterMapper.isMyShelter(userId,id))&&!adminMapper.getRoleById(userId).equals("SYSTEM_ADMIN")){
-            return R.fail(BizCode.FORBIDDEN);
-        }
         if(!shelterMapper.existsById(id)){
             return R.fail(BizCode.UNFOUND);
         }
@@ -116,7 +111,7 @@ public class ShelterServiceImpl implements ShelterService {
         ShelterResponse shelterResponse = new ShelterResponse();
         BeanUtils.copyProperties(shelter, shelterResponse);
         shelterResponse.setLocation(new ShelterResponse.Location(shelter.getLocation().getX(),  shelter.getLocation().getY()));
-        shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber());
+        shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber(id));
         return R.ok(shelterResponse);
     }
 
@@ -136,7 +131,7 @@ public class ShelterServiceImpl implements ShelterService {
         ShelterResponse shelterResponse = new ShelterResponse();
         BeanUtils.copyProperties(shelter, shelterResponse);
         shelterResponse.setLocation(new ShelterResponse.Location(shelter.getLocation().getX(),  shelter.getLocation().getY()));
-        shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber());
+        shelterResponse.setCurrentCatNumber(catMapper.getCurrentCatNumber(id));
         return R.ok(shelterResponse);
     }
 

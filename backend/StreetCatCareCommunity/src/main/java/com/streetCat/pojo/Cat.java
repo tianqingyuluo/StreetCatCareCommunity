@@ -19,6 +19,7 @@ public class Cat {
     private String status;
     private Long shelterId;
     private Long createdBy;
+    private String location;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

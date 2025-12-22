@@ -30,6 +30,7 @@ public class CatResponse {
     private Long comment;
     private Long view;
     private Long like;
+    private String location;
 
     // 从 Cat 实体转换的构造方法
     public CatResponse(Cat cat) {
@@ -51,6 +52,7 @@ public class CatResponse {
         this.comment = cat.getComment();
         this.view = cat.getView();
         this.like = cat.getLike();
+        this.location = cat.getLocation();
 
         // 转换 photos 字段
         if (cat.getPhotos() != null) {

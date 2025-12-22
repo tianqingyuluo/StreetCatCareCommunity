@@ -7,47 +7,49 @@
 
     <insert id="insertCat" useGeneratedKeys="false" keyProperty="id">
         INSERT INTO stray_cats
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            id,
-            <if test="req.name != null and req.name != ''">name,</if>
-            <if test="req.breed != null and req.breed != ''">breed,</if>
-            <if test="req.gender != null">gender,</if>
-            <if test="req.ageMonths != null">age_months,</if>
-            <if test="req.healthStatus != null and req.healthStatus != ''">health_status,</if>
-            <if test="req.description != null and req.description != ''">description,</if>
-            <if test="req.photos != null and req.photos != ''">photos,</if>
-            <if test="req.isNeutered != null">is_neutered,</if>
-            <if test="req.vaccinationStatus != null and req.vaccinationStatus != ''">vaccination_status,</if>
-            <if test="req.status != null and req.status != ''">status,</if>
-            <if test="req.shelterId != null">shelter_id,</if>
-            <if test="req.createdBy != null and req.createdBy != ''">created_by,</if>
+        (
+        id,
+        <if test="req.name != null and req.name != ''">name,</if>
+        <if test="req.breed != null and req.breed != ''">breed,</if>
+        <if test="req.gender != null">gender,</if>
+        <if test="req.ageMonths != null">age_months,</if>
+        <if test="req.healthStatus != null and req.healthStatus != ''">health_status,</if>
+        <if test="req.description != null and req.description != ''">description,</if>
+        <if test="req.photos != null and req.photos != ''">photos,</if>
+        <if test="req.isNeutered != null">is_neutered,</if>
+        <if test="req.vaccinationStatus != null and req.vaccinationStatus != ''">vaccination_status,</if>
+        <if test="req.status != null and req.status != ''">status,</if>
+        <if test="req.shelterId != null">shelter_id,</if>
+        <if test="req.createdBy != null and req.createdBy != ''">created_by,</if>
 
-            like_count,
-            comment_count,
-            view_count,
-            favorite_count,
-            created_at,
-            updated_at
-        </trim>
-        VALUES
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            #{id},
-            <if test="req.name != null and req.name != ''">#{req.name},</if>
-            <if test="req.breed != null and req.breed != ''">#{req.breed},</if>
-            <if test="req.gender != null">#{req.gender},</if>
-            <if test="req.ageMonths != null">#{req.ageMonths},</if>
-            <if test="req.healthStatus != null and req.healthStatus != ''">#{req.healthStatus},</if>
-            <if test="req.description != null and req.description != ''">#{req.description},</if>
-            <if test="req.photos != null and req.photos != ''">#{req.photos},</if>
-            <if test="req.isNeutered != null">#{req.isNeutered},</if>
-            <if test="req.vaccinationStatus != null and req.vaccinationStatus != ''">#{req.vaccinationStatus},</if>
-            <if test="req.status != null and req.status != ''">#{req.status},</if>
-            <if test="req.shelterId != null">#{req.shelterId},</if>
-            <if test="req.createdBy != null and req.createdBy != ''">#{req.createdBy},</if>
+        location,          <!-- 新增字段 -->
+        like_count,
+        comment_count,
+        view_count,
+        favorite_count,
+        created_at,
+        updated_at
+        )
+        SELECT
+        #{id},
+        <if test="req.name != null and req.name != ''">#{req.name},</if>
+        <if test="req.breed != null and req.breed != ''">#{req.breed},</if>
+        <if test="req.gender != null">#{req.gender},</if>
+        <if test="req.ageMonths != null">#{req.ageMonths},</if>
+        <if test="req.healthStatus != null and req.healthStatus != ''">#{req.healthStatus},</if>
+        <if test="req.description != null and req.description != ''">#{req.description},</if>
+        <if test="req.photos != null and req.photos != ''">#{req.photos},</if>
+        <if test="req.isNeutered != null">#{req.isNeutered},</if>
+        <if test="req.vaccinationStatus != null and req.vaccinationStatus != ''">#{req.vaccinationStatus},</if>
+        <if test="req.status != null and req.status != ''">#{req.status},</if>
+        <if test="req.shelterId != null">#{req.shelterId},</if>
+        <if test="req.createdBy != null and req.createdBy != ''">#{req.createdBy},</if>
 
-            0, 0, 0, 0,
-            NOW(), NOW()
-        </trim>
+        s.address,   <!-- 从 shelters 表取地址 -->
+        0, 0, 0, 0,
+        NOW(), NOW()
+        FROM shelters s
+        WHERE s.id = #{req.shelterId}
     </insert>
     <resultMap id="CatMap" type="com.streetCat.pojo.Cat">
         <id property="id" column="id"/>

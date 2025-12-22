@@ -15,7 +15,7 @@
     </delete>
 
     <!-- 获取用户收藏的猫咪ID列表 -->
-    <select id="getFavoriteCatIds" resultType="java.lang.Long">
+    <select id="getFavoriteCatIds" resultType="java.lang.String">
         SELECT target_id
         FROM user_favorites
         WHERE user_id = #{userId} AND target_type = 'CAT'
@@ -23,7 +23,7 @@
     </select>
 
     <!-- 获取用户收藏的帖子ID列表 -->
-    <select id="getFavoritePostIds" resultType="java.lang.Long">
+    <select id="getFavoritePostIds" resultType="java.lang.String">
         SELECT target_id
         FROM user_favorites
         WHERE user_id = #{userId} AND target_type = 'POST'

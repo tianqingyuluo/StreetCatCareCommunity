@@ -10,8 +10,8 @@ public interface LikeMapper {
     void insertLike(Like like);
 
     @Delete("DELETE FROM likes WHERE user_id = #{userId} AND target_type = #{targetType} AND target_id = #{targetId}")
-    void deleteLike(Long userId, String targetType, Long targetId);
+    void deleteLike(String userId, String targetType, String targetId);
 
     @Select("SELECT target_id FROM likes WHERE user_id = #{userId}")
-    List<Long> getLikesByUserId(Long userId);
+    List<String> getLikesByUserId(String userId);
 }

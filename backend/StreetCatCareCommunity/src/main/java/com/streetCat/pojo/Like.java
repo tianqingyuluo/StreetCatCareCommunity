@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 
 @Data
 public class Like {
-    private Long id;
-    private Long userId;
+    private String id;
+    private String userId;
     private String targetType;
-    private Long targetId;
+    private String targetId;
     private LocalDateTime createdAt;
 }
