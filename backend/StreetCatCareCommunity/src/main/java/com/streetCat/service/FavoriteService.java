@@ -9,6 +9,6 @@ public interface FavoriteService {
     void addFavorite(String type, String userId, String targetId);
     void removeFavorite(String type, String userId, String targetId);
     List<FavoriteDetailResponse> getAllFavorites(String userId);
-    List<Long> getFavoriteCats(String userId);
-    List<Long> getFavoritePosts(String userId);
+    List<String> getFavoriteCats(String userId);
+    List<String> getFavoritePosts(String userId);
 }

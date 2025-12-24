@@ -28,11 +28,11 @@ public class CommentServiceImpl implements CommentService {
     private final AdminMapper adminMapper;
     @Override
     public Comment createComment(String userId, CreateCommentRequest request) {
-        if (request.getParentId().isEmpty()) {
+        if (request.getParentId() != null && request.getParentId().isEmpty()) {
             request.setParentId(null);
         }
         String id = String.valueOf(RandomUtil.nextId());
-        redisCountUtil.incrementCommentCount(request.getTargetType(), Long.valueOf(request.getTargetId()));
+        redisCountUtil.incrementCommentCount(request.getTargetType(), request.getTargetId());
         commentMapper.insertComment(id, userId, request);
         return commentMapper.selectCommentById(id);
     }
@@ -82,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
         if (!adminMapper.existsById(userId) && (!Objects.equals(commentMapper.selectCommentById(ids.getFirst()).getAuthor().getId(), userId))) {
             throw new BusinessException("你不是管理员或发布评论的本人，无权删除该评论");
         }
-        redisCountUtil.decrementCommentCount(userId, Long.valueOf(ids.getFirst()));
+        redisCountUtil.decrementCommentCount(userId, ids.getFirst());
         commentMapper.deleteByIds(ids);
     }
 }

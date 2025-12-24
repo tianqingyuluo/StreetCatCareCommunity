@@ -19,7 +19,7 @@ public class LikeServiceImpl implements LikeService {
     private RedisCountUtil redisCountUtil;
 
     @Override
-    public boolean like(String targetType, Long targetId, Long userId) {
+    public boolean like(String targetType, String targetId, String userId) {
         // 检查是否已经点赞过
         if (redisCountUtil.incrementLikeCount(targetType, targetId, userId)) {
             // 插入数据库记录
@@ -34,7 +34,7 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
-    public boolean unlike(String targetType, Long targetId, Long userId) {
+    public boolean unlike(String targetType,String targetId, String userId) {
         // 检查是否有点赞记录
         if (redisCountUtil.decrementLikeCount(targetType, targetId, userId)) {
             // 删除数据库记录
@@ -45,7 +45,7 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
-    public List<Long> getLikesByUserId(Long userId) {
+    public List<String> getLikesByUserId(String userId) {
         return likeMapper.getLikesByUserId(userId);
     }
 }

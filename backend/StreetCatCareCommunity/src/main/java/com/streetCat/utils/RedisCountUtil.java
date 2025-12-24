@@ -31,15 +31,15 @@ public class RedisCountUtil {
     /**
      * 生成Redis key
      */
-    private String generateKey(String countType, String targetType, Long targetId) {
-        return String.format("%s:%s:%d", countType, targetType, targetId);
+    private String generateKey(String countType, String targetType,String targetId) {
+        return String.format("%s:%s:%s", countType, targetType, targetId);
     }
 
     /**
      * 生成用户行为key（防重复）
      */
-    private String generateUserActionKey(String actionType, String targetType, Long targetId, Long userId) {
-        return String.format("%s:%s:%s:%d:%d", USER_ACTION_KEY, actionType, targetType, targetId, userId);
+    private String generateUserActionKey(String actionType, String targetType, String targetId, String userId) {
+        return String.format("%s:%s:%s:%s:%s", USER_ACTION_KEY, actionType, targetType, targetId, userId);
     }
 
     // ==================== 点赞数相关方法 ====================
@@ -47,7 +47,7 @@ public class RedisCountUtil {
     /**
      * 增加点赞数（带防重复）
      */
-    public boolean incrementLikeCount(String targetType, Long targetId, Long userId) {
+    public boolean incrementLikeCount(String targetType, String targetId, String userId) {
         String actionKey = generateUserActionKey("like", targetType, targetId, userId);
         String countKey = generateKey(LIKE_COUNT_KEY, targetType, targetId);
 
@@ -66,7 +66,7 @@ public class RedisCountUtil {
     /**
      * 取消点赞
      */
-    public boolean decrementLikeCount(String targetType, Long targetId, Long userId) {
+    public boolean decrementLikeCount(String targetType, String  targetId, String userId) {
         String actionKey = generateUserActionKey("like", targetType, targetId, userId);
         String countKey = generateKey(LIKE_COUNT_KEY, targetType, targetId);
 
@@ -87,7 +87,7 @@ public class RedisCountUtil {
     /**
      * 增加收藏数（带防重复）
      */
-    public boolean incrementCollectCount(String targetType, Long targetId, Long userId) {
+    public boolean incrementCollectCount(String targetType, String targetId, String userId) {
         String actionKey = generateUserActionKey("collect", targetType, targetId, userId);
         String countKey = generateKey(COLLECT_COUNT_KEY, targetType, targetId);
 
@@ -106,7 +106,7 @@ public class RedisCountUtil {
     /**
      * 取消收藏
      */
-    public boolean decrementCollectCount(String targetType, Long targetId, Long userId) {
+    public boolean decrementCollectCount(String targetType, String  targetId, String userId) {
         String actionKey = generateUserActionKey("collect", targetType, targetId, userId);
         String countKey = generateKey(COLLECT_COUNT_KEY, targetType, targetId);
 
@@ -124,10 +124,7 @@ public class RedisCountUtil {
         return deleted;
     }
 
-    /**
-     * 检查用户是否已收藏
-     */
-    public boolean isCollected(String targetType, Long targetId, Long userId) {
+    public boolean isCollected(String targetType, String targetId, String userId) {
         String actionKey = generateUserActionKey("collect", targetType, targetId, userId);
         return Boolean.TRUE.equals(redisTemplate.hasKey(actionKey));
     }
@@ -137,7 +134,7 @@ public class RedisCountUtil {
     /**
      * 增加评论数
      */
-    public void incrementCommentCount(String targetType, Long targetId) {
+    public void incrementCommentCount(String targetType, String  targetId) {
         String countKey = generateKey(COMMENT_COUNT_KEY, targetType, targetId);
         redisTemplate.opsForValue().increment(countKey);
     }
@@ -145,7 +142,7 @@ public class RedisCountUtil {
     /**
      * 减少评论数
      */
-    public void decrementCommentCount(String targetType, Long targetId) {
+    public void decrementCommentCount(String targetType, String targetId) {
         String countKey = generateKey(COMMENT_COUNT_KEY, targetType, targetId);
         redisTemplate.opsForValue().decrement(countKey);
     }
@@ -155,7 +152,7 @@ public class RedisCountUtil {
     /**
      * 增加浏览数（带防刷）
      */
-    public boolean incrementViewCount(String targetType, Long targetId, Long userId) {
+    public boolean incrementViewCount(String targetType, String targetId,String  userId) {
         String actionKey = generateUserActionKey("view", targetType, targetId, userId);
         String countKey = generateKey(VIEW_COUNT_KEY, targetType, targetId);
 
@@ -177,7 +174,7 @@ public class RedisCountUtil {
     /**
      * 获取点赞数
      */
-    public Integer getLikeCount(String targetType, Long targetId) {
+    public Integer getLikeCount(String targetType, String targetId) {
         String countKey = generateKey(LIKE_COUNT_KEY, targetType, targetId);
         Object count = redisTemplate.opsForValue().get(countKey);
         return count != null ? Integer.parseInt(count.toString()) : 0;
@@ -186,7 +183,7 @@ public class RedisCountUtil {
     /**
      * 获取收藏数
      */
-    public Integer getCollectCount(String targetType, Long targetId) {
+    public Integer getCollectCount(String targetType,String targetId) {
         String countKey = generateKey(COLLECT_COUNT_KEY, targetType, targetId);
         Object count = redisTemplate.opsForValue().get(countKey);
         return count != null ? Integer.parseInt(count.toString()) : 0;
@@ -195,7 +192,7 @@ public class RedisCountUtil {
     /**
      * 获取评论数
      */
-    public Integer getCommentCount(String targetType, Long targetId) {
+    public Integer getCommentCount(String targetType, String targetId) {
         String countKey = generateKey(COMMENT_COUNT_KEY, targetType, targetId);
         Object count = redisTemplate.opsForValue().get(countKey);
         return count != null ? Integer.parseInt(count.toString()) : 0;
@@ -204,7 +201,7 @@ public class RedisCountUtil {
     /**
      * 获取浏览数
      */
-    public Integer getViewCount(String targetType, Long targetId) {
+    public Integer getViewCount(String targetType, String targetId) {
         String countKey = generateKey(VIEW_COUNT_KEY, targetType, targetId);
         Object count = redisTemplate.opsForValue().get(countKey);
         return count != null ? Integer.parseInt(count.toString()) : 0;

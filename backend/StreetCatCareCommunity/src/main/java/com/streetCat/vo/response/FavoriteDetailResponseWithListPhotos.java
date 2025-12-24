@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class FavoriteDetailResponseWithListPhotos {
     private String targetType;
-    private Long targetId;
+    private String targetId;
     private LocalDateTime createdAt;
 
     private PostWithUserResponse post; // 使用 PostWithUserResponse 封装帖子信息

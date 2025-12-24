@@ -12,25 +12,25 @@ public interface FavoriteMapper {
     /**
      * 插入收藏记录
      */
-    int insertFavorite(@Param("userId") Long userId, @Param("targetType") String targetType, @Param("targetId") Long targetId);
+    int insertFavorite(@Param("userId") String userId, @Param("targetType") String targetType, @Param("targetId") String targetId);
 
     /**
      * 删除收藏记录
      */
-    int deleteFavorite(@Param("userId") Long userId, @Param("targetType") String targetType, @Param("targetId") Long targetId);
+    int deleteFavorite(@Param("userId") String userId, @Param("targetType") String targetType, @Param("targetId") String targetId);
 
     /**
      * 获取用户的所有收藏（包括猫咪和帖子）
      */
-    List<FavoriteDetailResponse> getAllFavorites(@Param("userId") Long userId);
+    List<FavoriteDetailResponse> getAllFavorites(@Param("userId") String userId);
 
     /**
      * 获取用户收藏的猫咪ID列表
      */
-    List<Long> getFavoriteCatIds(@Param("userId") Long userId);
+    List<String> getFavoriteCatIds(@Param("userId") String userId);
 
     /**
      * 获取用户收藏的帖子ID列表
      */
-    List<Long> getFavoritePostIds(@Param("userId") Long userId);
+    List<String> getFavoritePostIds(@Param("userId") String userId);
 }

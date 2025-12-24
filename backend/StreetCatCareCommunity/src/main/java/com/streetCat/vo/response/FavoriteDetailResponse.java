@@ -8,15 +8,15 @@ import java.time.LocalDateTime;
 @Data
 public class FavoriteDetailResponse {
     private String targetType;
-    private Long targetId;
+    private String targetId;
     private LocalDateTime createdAt;
 
     // 帖子相关字段
-    private Long postId;
+    private String postId;
     private String postTitle;
     private String postContent;
     private String postType;
-    private Long postAuthorId;
+    private String postAuthorId;
     private Integer postLikeCount;
     private Integer postCommentCount;
     private Integer postViewCount;
@@ -30,7 +30,7 @@ public class FavoriteDetailResponse {
     private String postAuthorNickname;
 
     // 猫咪相关字段
-    private Long catId;
+    private String catId;
     private String catName;
     private String catBreed;
     private String catGender;
@@ -41,8 +41,8 @@ public class FavoriteDetailResponse {
     private Boolean catIsNeutered;
     private String catVaccinationStatus;
     private String catStatus;
-    private Long catShelterId;
-    private Long catCreatedBy;
+    private String catShelterId;
+    private String catCreatedBy;
     private Long catLikeCount;
     private Long catCommentCount;
     private Long catViewCount;

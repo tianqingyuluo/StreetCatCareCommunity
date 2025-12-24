@@ -38,7 +38,9 @@
             <if test="shelter.licenseNumber != null and shelter.licenseNumber != ''">license_number = #{shelter.licenseNumber},</if>
             <if test="shelter.managerId != null and shelter.managerId != ''">manager_id = #{shelter.managerId},</if>
             <if test="shelter.capacity != null and shelter.capacity != ''">capacity = #{shelter.capacity},</if>
+            <if test="shelter.avatar != null and shelter.avatar != ''">avatar = #{shelter.avatar},</if>
             <if test="shelter.updatedAt != null and shelter.updatedAt != ''">updated_at = #{shelter.updatedAt},</if>
+
         </set>
         WHERE id = #{id}
     </update>

@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS stray_cats (
     comment_count INT DEFAULT 0 COMMENT '评论数',
     view_count INT DEFAULT 0 COMMENT '浏览数',
     favorite_count INT DEFAULT 0 COMMENT '收藏数',
+    location VARCHAR(255) DEFAULT NULL COMMENT '所在位置（文本描述）',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_status_created (status, created_at),
